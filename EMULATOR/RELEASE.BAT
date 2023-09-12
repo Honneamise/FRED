@@ -1,0 +1,1 @@
+cl.exe /O2 /TC /I INCLUDE SRC/*.c /link opengl32.lib LIB/GLFW/glfw3dll.lib LIB/OPENAL/OpenAL32.lib /ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS /MACHINE:X64 /OUT:FRED_EMU.EXE 

@@ -1,0 +1,1 @@
+cl.exe /O2 /TC SRC/*.c /link /ENTRY:mainCRTStartup /SUBSYSTEM:CONSOLE /MACHINE:X64 /OUT:FRED_ASM.EXE
