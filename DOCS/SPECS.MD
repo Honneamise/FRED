@@ -108,11 +108,19 @@ If the keyboard buffer contains data, **EF1** is set to **1**, otherwise to **0*
 
 To pop data from the buffer read the data bus with : **INP 1**
 
+## TIMER
+
+It is available a clock that is activated **16.6** times per second.
+
+At every activation the clock is increased by **1**, upon reaching **60** the clock resets to **0**.
+
+To get the current clock value read the data bus with : **INP 2**
+
 ## AUDIO
 
 There are availables 48 different notes to play.
 
-To handle the audio device write a value on the data bus using : **OUT 2** 
+To handle the audio device write a value on the data bus using : **OUT 3** 
 
 To start the playback of a note output a value between **0x01** and **0x30** (both included).
 

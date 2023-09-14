@@ -37,9 +37,9 @@ int8_t isa_get_register(char *reg);
 
 Instruction *isa_get_instruction(char *name);
 
-void isa_parse_instruction(Context *ctx, Stream *stream, Instruction *ins);
+void isa_parse(Context *ctx, Stream *stream, Instruction *ins);
 
-void isa_build_instruction(Context *ctx, Stream *in, Stream *out, Instruction *ins);
+void isa_build(Context *ctx, Stream *in, Stream *out, Instruction *ins);
 
 #endif
 

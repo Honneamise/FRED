@@ -7,10 +7,14 @@
 #include "memory.h"
 #include "cpu.h"
 #include "video.h"
+#include "timer.h"
 #include "keyboard.h"
+#include "clock.h"
 #include "audio.h"
 #include "device.h"
-#include <windows.h>
+
+#include <stdlib.h>
+#include <string.h>
 
 /**********/
 void system_init(char *charset_file, char *program_file)
@@ -53,7 +57,8 @@ void system_init(char *charset_file, char *program_file)
 
     //add id and function to devices list
     device_add(1, keyboard_func);
-    device_add(2, audio_func);
+    device_add(2, clock_func);
+    device_add(3, audio_func);
 }
 
 /**********/
@@ -79,39 +84,31 @@ void system_close()
 /**********/
 void system_run(uint8_t mhz)
 {
-    LARGE_INTEGER freq = {0};
-    LARGE_INTEGER start = {0};
-    LARGE_INTEGER end = {0};
-    LONGLONG diff = {0};
-    double ms = 0.0;
-
-    QueryPerformanceFrequency(&freq); 
+    double elapsed = 0.0;
 
     while(video_run())
     {
-        QueryPerformanceCounter(&start);
+        double t = timer_get();
 
-        //we run cpu at 1 Mhz 
-        //the screen refresh rate is 60 Hz
-        //the screen updates every 16.6 ms
-        //so between 2 screen updates we can execute 16600 cycles
-        int32_t available_cycles = 16600 * mhz;
+        //the screen refresh rate is 60 Hz, so the screen updates every 16.6 ms
+        //if we run at 1 Mhz, between 2 screen updates we can execute 16600 cycles
+
+        int32_t available_cycles = 16600 * mhz ;
 
         while( available_cycles > 0) 
         {
             available_cycles -= cpu_run();
         }
 
-        // *here*
-        
-        QueryPerformanceCounter(&end);
+        video_update();
 
-        diff = end.QuadPart - start.QuadPart;
+        video_poll();
 
-        ms = (double)diff * 1000.0 / (double)freq.QuadPart;
+        elapsed = (timer_get() - t) * 1000.0;
+
+        timer_sleep( (int64_t)(16.6 - elapsed) );        
         
-        usleep( (int64_t)((16.6 - ms)*1000.0));        
-        
-        video_update();//move it up *here* ?
+        clock_update();
+
     }
 }

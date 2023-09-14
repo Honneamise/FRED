@@ -100,25 +100,6 @@ void save_buffer(char *file, uint8_t *buffer, uint32_t size)
 }
 
 /**********/
-void usleep(int64_t usec)
-{
-	HANDLE timer;
-	LARGE_INTEGER ft;
-
-	ft.QuadPart = -(10 * (int64_t)usec);
-
-	timer = CreateWaitableTimer(NULL, TRUE, NULL);
-
-    if(!timer){ error("[%s][INTERNAL TIMER CREATION FAILED]", __func__); return; }
-	
-    SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
-	
-    WaitForSingleObject(timer, INFINITE);
-	
-    CloseHandle(timer);
-}
-
-/**********/
 // return 1 conversion success, 0 fail
 uint8_t str_to_word(char *str, uint16_t *num)
 {

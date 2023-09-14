@@ -60,7 +60,7 @@ void assembler_parse(Context *ctx, Stream *stream)
 
                 if( ptr = isa_get_instruction(token) )//instruction ?
                 {
-                    isa_parse_instruction(ctx, stream, ptr);
+                    isa_parse(ctx, stream, ptr);
                 }
 
                 else if ( ptr = macro_get(token) )//macro ?

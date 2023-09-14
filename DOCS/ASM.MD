@@ -16,10 +16,42 @@
 
 # CODE SNIPPETS
 
+## String print
+
+```
+        ORG     0x1000      ; set the entry point
+ 
+MAIN:                       ; R1 as string pointer
+
+        LDI     LABEL.1     ; get high byte of LABEL
+        PHI     R1          ; store it in high byte of R1
+        LDI     LABEL.0     ; get low byte of LABEL
+        PLO     R1          ; store it in low byte of R1
+
+PRINT:
+        LDA     R1          ; D <- M(R(N)); R(N) <- R(N)+1
+
+        BZ      END         ; if zero, done
+
+        STR     R2          ; M(R(X)) <-- D
+        
+        INC     R2          ; skip attribute byte
+
+        INC     R2          ; next pos
+
+        BR     PRINT        ; repeat
+
+END:    IDL                 ; halt execution
+
+LABEL: 
+        STRING "HELLO WORLD" 
+        BYTE 0x00
+```
+
 ## Clear the screen
 
 ```
-        ORG     0x1000      ; set entry point
+ORG     0x1000      ; set entry point
 
 MAIN:
         SEX     R1          ; use R1 as video memory pointer
@@ -53,43 +85,14 @@ SCREEN:
 WAIT_KEY:
         BN1     WAIT_KEY    ; wait until signal on EF1
 
+EMPTY:
         INP     1           ; M(R(X)) <- BUS; D <- BUS
+
+        B1      EMPTY       ; empty the keyboard buffer
 
         BR      LOOP        ; repeat
 
 END:    IDL                 ; never reached
-```
-
-## String print
-
-```
-        ORG     0x1000      ; set the entry point
- 
-MAIN:                       ; R1 as string pointer
-
-        LDI     LABEL.1     ; get high byte of LABEL
-        PHI     R1          ; store it in high byte of R1
-        LDI     LABEL.0     ; get low byte of LABEL
-        PLO     R1          ; store it in low byte of R1
-
-PRINT:
-        LDA     R1          ; D <- M(R(N)); R(N) <- R(N)+1
-
-        BZ      END         ; if zero, done
-
-        STR     R2          ; M(R(X)) <-- D
-        
-        INC     R2          ; skip attribute byte
-
-        INC     R2          ; next pos
-
-        BR     PRINT        ; repeat
-
-END:    IDL                 ; halt execution
-
-LABEL: 
-        STRING "HELLO WORLD" 
-        BYTE 0x00
 ```
 
 ## Stack operations
@@ -163,7 +166,7 @@ SOUND_ON:
 
         STR     R1          ; M(R(X)) <- D;
 
-        OUT     2           ; BUS <- M(R(X)) ; R(X) <- R(X)+1
+        OUT     3           ; BUS <- M(R(X)) ; R(X) <- R(X)+1
         DEC     R1          ; R1--
         
 SOUND_OFF:
@@ -176,7 +179,7 @@ SOUND_OFF:
 
         STR     R1          ; M(R(X)) <- D;
 
-        OUT     2           ; BUS <- M(R(X)) ; R(X) <- R(X)+1
+        OUT     3           ; BUS <- M(R(X)) ; R(X) <- R(X)+1
         DEC     R1          ; R1--
 
         BR      SOUND_ON    ; repeat

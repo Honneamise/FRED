@@ -381,10 +381,14 @@ void video_close()
 }
 
 /**********/
-int video_run()
+void video_poll()
 {
     glfwPollEvents();
+}
 
+/**********/
+int video_run()
+{
     return !glfwWindowShouldClose(video->window);
 }
 

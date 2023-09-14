@@ -40,7 +40,7 @@ void assembler_build(Context *ctx, Stream *in, Stream *out)
 
                 if( ptr = isa_get_instruction(token) )//instruction ?
                 {
-                    isa_build_instruction(ctx, in, out, ptr);
+                    isa_build(ctx, in, out, ptr);
                 }
 
                 else if ( ptr = macro_get(token) )//macro ?

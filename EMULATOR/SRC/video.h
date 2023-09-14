@@ -5,6 +5,8 @@ void video_init();
 
 void video_close();
 
+void video_poll();
+
 int video_run();
 
 void video_update();
