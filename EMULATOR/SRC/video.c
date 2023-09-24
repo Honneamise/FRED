@@ -19,9 +19,6 @@
 #define OPENGL_MAJOR    4
 #define OPENGL_MINOR    3
 
-#define VERT_FILE       "vert.glsl"
-#define FRAG_FILE       "frag.glsl"
-
 typedef struct VIDEO
 {
     //glfw
@@ -52,6 +49,48 @@ static const float TEXTURE_VERTICES[16] =
     1.0f,  1.0f, 1.0f, 0.0f
 };
 
+//vertex shader
+static const char *VERT_SRC = "\n\
+#version 450\n\
+layout (location = 0) in vec2 Pos;\n\
+layout (location = 1) in vec2 Uv;\n\
+out vec2 Tex;\n\
+void main()\n\
+{\n\
+    gl_Position = vec4(Pos.x, Pos.y, 0.0f, 1.0f);\n\
+    Tex = Uv;\n\
+}";
+
+//fragment shader
+static const char *FRAG_SRC = "\n\
+#version 450\n\
+uniform sampler2D Texture;\n\
+in vec2 Tex;\n\
+out vec4 Color;\n\
+const vec3 Palette[16] = vec3[]\n\
+(\n\
+    vec3(0.0,  0.0,  0.0),  // #000000\n\
+    vec3(0.5,  0.0,  0.0),  // #800000\n\
+    vec3(0.0,  0.5,  0.0),  // #008000\n\
+    vec3(0.5,  0.5,  0.0),  // #808000\n\
+    vec3(0.0,  0.0,  0.5),  // #000080\n\
+    vec3(0.5,  0.0,  0.5),  // #800080\n\
+    vec3(0.0,  0.5,  0.5),  // #008080\n\
+    vec3(0.75, 0.75, 0.75), // #C0C0C0\n\
+    vec3(0.5,  0.5,  0.5),  // #808080\n\
+    vec3(1.0,  0.0,  0.0),  // #FF0000\n\
+    vec3(0.0,  1.0,  0.0),  // #00FF00\n\
+    vec3(1.0,  1.0,  0.0),  // #FFFF00\n\
+    vec3(0.0,  0.0,  1.0),  // #0000FF\n\
+    vec3(1.0,  0.0,  1.0),  // #FF00FF\n\
+    vec3(0.0,  1.0,  1.0),  // #00FFFF\n\
+    vec3(1.0,  1.0,  1.0)   // #FFFFFF\n\
+);\n\
+void main()\n\
+{\n\
+    int index = int( texture2D(Texture, Tex).r * 255.0);\n\
+    Color = vec4( Palette[index], 1.0);\n\
+}";
 
 //log
 static PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog = NULL;
@@ -215,11 +254,11 @@ static void APIENTRY opengl_debug_callback(
 }
 
 /**********/
-static GLuint opengl_shader(GLenum type, uint8_t *src, uint32_t *src_len)
+static GLuint opengl_shader(GLenum type, const uint8_t *src)
 {
 	GLuint shader = glCreateShader(type);
 
-	glShaderSource(shader, 1, (const GLchar**)&src, (const GLint*)src_len);
+	glShaderSource(shader, 1, (const GLchar**)&src, NULL);
 
 	glCompileShader(shader);
 
@@ -312,17 +351,12 @@ static void opengl_init()
 	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, TEXTURE_W, TEXTURE_H, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
 
-    uint8_t *buffer = NULL;
-    uint32_t buffer_len = 0;
-
-    load_buffer(VERT_FILE, &buffer, &buffer_len);
-    video->vert_shader = opengl_shader(GL_VERTEX_SHADER, buffer, &buffer_len);
-    free(buffer);
-
-    load_buffer(FRAG_FILE, &buffer, &buffer_len);
-    video->frag_shader = opengl_shader(GL_FRAGMENT_SHADER, buffer, &buffer_len);
-    free(buffer);
-
+    uint32_t len = 0;
+    
+    video->vert_shader = opengl_shader(GL_VERTEX_SHADER, VERT_SRC);
+    
+    video->frag_shader = opengl_shader(GL_FRAGMENT_SHADER, FRAG_SRC);
+    
     video->prog_shader = opengl_program_shader(video->vert_shader, video->frag_shader);
 
 	glUseProgram(video->prog_shader);

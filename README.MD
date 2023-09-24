@@ -2,7 +2,7 @@
 
 SUPER FRED is a system based on the RCA CDP 1802 processor designed by Joseph Weisbecker.
 
-The purpose of this project is to provide the tools needed to run a "modernized" and "semplified" version of a system based on this processor.
+The purpose of this project is to provide the tools needed to run a "modernized" and "simplified" version of a system based on this processor.
 
 This repository contain an assembler and an emulator to develop and run programs for such system.
 
@@ -16,10 +16,58 @@ The system emulate the following components :
 - MEMORY   : 64 KB
 - VIDEO    : 40x25 characters, 16 colors
 - KEYBOARD : standard keyboard
+- TIMER    : activation 16.6 times per second
 - SOUND    : 48 tones speaker
 ```
 
 For details of specifications refer to the [SPECS](DOCS/SPECS.MD) section.
+
+
+## PROJECT STRUCTURE
+
+```
+FRED
+|
+├── ASSEMBLER
+|   ├── BUILD
+|   ├── SRC
+|   ├── Debug.bat
+|   └── CMakeLists.txt
+|
+├── EMULATOR
+|   ├── BUILD
+|   ├── SRC
+|   ├── EXT
+|   |   ├── INCLUDE
+|   |   |   ├── GL
+|   |   |   ├── GLFW
+|   |   |   └── OPENAL
+|   |   └── LIB
+|   |       ├── GL
+|   |       ├── GLFW
+|   |       └── OPENAL
+|   ├── Debug.bat
+|   └── CMakeLists.txt
+|
+├── DOCS
+|   ├── 1802_EXTRA.PDF
+|   ├── 1802_MANUAL.PDF
+|   ├── ASM.MD
+|   ├── ISA.MD
+|   ├── MACRO.MD
+|   └── SPECS.MD
+|
+├── DIST
+│   ├── charset.rom
+|   ├── program.bin
+|   ├── FRED_ASM.EXE
+|   ├── FRED_EMU.EXE
+|   ├── glfw3.dll
+|   ├── OpenAL32.dll
+|   └── soft_oal.dll
+|
+└── README.MD
+```
 
 ## ASSEMBLER
 
@@ -41,16 +89,10 @@ In order to run the emulator, in the same folder of the executable must be prese
 - glfw3.dll
 - OpenAL32.dll
 - soft_oal.dll
-- frag.glsl
-- vert.glsl
-- charset.rom (required if using default values)
-- program.bin (required if using default values)
 ```
 
-To invoke the emulator with defaults values and speed (1 Mhz) use :
-```
-FRED_EMU.EXE
-```
+**NOTE : the "DIST" folder contains all required dlls, a sample charset and a sample program** 
+
 To invoke the emulator with custom parameters use :
 ```
 FRED_EMU.EXE CPU_MHZ CHARSET_FILE PROGRAM_FILE
@@ -58,10 +100,11 @@ FRED_EMU.EXE CPU_MHZ CHARSET_FILE PROGRAM_FILE
 where :
 
 ```
-CPU_MHZ      : the speed of the cpu in Mhz (integers only)
+CPU_MHZ      : the speed of the cpu in Mhz
 CHARSET_FILE : your custom charset file
 PROGRAM_FILE : your binary program
 ```
+
 
 ## BUILDING
 
@@ -74,9 +117,11 @@ Native Tools Command Prompt for VS 2022
 and run one of the following commands in the according folder :
 
 ```
-DEBUG.BAT   : debug mode with static analyzer and checks for memory leaks
-RELEASE.BAT : release mode
-CLEAN.BAT   : to clean intermediate files
+Debug.bat /* for command line */ 
+```
+or
+```
+cmake -B BUILD /* for cmake */
 ```
 
 ## PROGRAMMING
@@ -93,8 +138,18 @@ Basic informations and several code snippets are provided in the [ASM](DOCS/ASM.
 
 Currently working on the following :
 - detection of non-printable keys of the keyboard
+- separate function pointers for IN/OUT calls
 
 The future improvements of the project will include the implementation of the following functionalities :
-- an (optional) external timer 
 - an (optional) block device 
 - an (optional) graphic mode
+
+## REFERENCE
+
+- OPENGL : https://www.opengl.org
+
+- OPENAL : https://www.openal.org
+
+- GLFW : https://www.glfw.org
+
+- INTERNET ARCHIVE : https://www.archive.org/

@@ -70,7 +70,7 @@ static void openal_generate_tone(uint8_t *buf, int32_t sample_rate, float freq)
     for(int32_t i=0;i<sample_rate;i++)
     {
         buf[i] = (uint8_t)( 0xFF * sin( M_PI*freq/sample_rate*i ) );
-    }
+    };
 }
 
 /**********/

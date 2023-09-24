@@ -1,0 +1,11 @@
+﻿  Building Custom Rule C:/Users/honne/Desktop/FRED/ASSEMBLER/CMakeLists.txt
+  builder.c
+  context.c
+  funcs.c
+  isa.c
+  macro.c
+  main.c
+  parser.c
+  stream.c
+  Generating Code...
+  FRED_ASM.vcxproj -> C:\Users\honne\Desktop\FRED\ASSEMBLER\BUILD\Debug\FRED_ASM.exe

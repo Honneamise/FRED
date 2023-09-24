@@ -1,0 +1,10 @@
+^C:\USERS\HONNE\DESKTOP\FRED\ASSEMBLER\BUILD\CMAKEFILES\F0E128CCD2CCCD494C9905C133F67981\GENERATE.STAMP.RULE
+setlocal
+C:\mingw64\bin\cmake.exe -SC:/Users/honne/Desktop/FRED/ASSEMBLER -BC:/Users/honne/Desktop/FRED/ASSEMBLER/BUILD --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/honne/Desktop/FRED/ASSEMBLER/BUILD/FRED_ASM.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

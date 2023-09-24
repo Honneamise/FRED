@@ -1,0 +1,3 @@
+C:/Users/honne/Desktop/FRED/ASSEMBLER/BUILD/CMakeFiles/FRED_ASM.dir
+C:/Users/honne/Desktop/FRED/ASSEMBLER/BUILD/CMakeFiles/ALL_BUILD.dir
+C:/Users/honne/Desktop/FRED/ASSEMBLER/BUILD/CMakeFiles/ZERO_CHECK.dir
