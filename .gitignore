@@ -1,4 +1,4 @@
-.vscode/
+.vscode/*
 
 ASSEMBLER/BUILD/*
 !ASSEMBLER/BUILD/.gitkeep
