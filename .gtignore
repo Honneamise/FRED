@@ -1,3 +1,7 @@
 .vscode/
+
 ASSEMBLER/BUILD/*
+!ASSEMBLER/BUILD/.gitkeep
+
 EMULATOR/BUILD/*
+!EMULATOR/BUILD/.gitkeep
