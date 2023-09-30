@@ -7,11 +7,11 @@
 
 #include <stdint.h>
 
-void memory_init();
+void memory_init(void);
 
-void memory_close();
+void memory_close(void);
 
-uint8_t *memory_get_buffer();
+uint8_t *memory_get_buffer(void);
 
 uint8_t memory_read(uint16_t address);
 

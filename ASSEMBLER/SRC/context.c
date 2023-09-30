@@ -4,7 +4,7 @@
 #include <string.h>
 
 /**********/
-Context *context_init()
+Context *context_init(void)
 {
     return alloc(1, sizeof(Context));
 }
@@ -35,8 +35,8 @@ void context_add_symbol(Context *ctx, char *name)
 
     s->name = name;
     
-    s->val = ctx->byte_counter;
-
+    s->val = (uint16_t)ctx->byte_counter;
+   
     s->next = ctx->table;
 
     ctx->table = s;

@@ -129,7 +129,7 @@ void isa_parse(Context *ctx, Stream *stream, Instruction *ins)
             if(!stream_skip_token(stream)) 
             { 
                 error("[%s][LINE %d][MISSING PARAMETER]", __func__, stream->line);
-            };
+            }
         break;
 
         case BYTE:
@@ -138,7 +138,7 @@ void isa_parse(Context *ctx, Stream *stream, Instruction *ins)
             if(!stream_skip_token(stream)) 
             { 
                 error("[%s][LINE %d][MISSING PARAMETER]", __func__, stream->line);
-            };
+            }
 
             if( stream_expect(stream, BYTE_SEPARATOR) )
             {
@@ -146,7 +146,7 @@ void isa_parse(Context *ctx, Stream *stream, Instruction *ins)
                 {
                     error("[%s][LINE %d][EXPECTED HI OR LOW NIBBLE]", __func__, stream->line);
                 }
-            };
+            }
         break;
 
         default: 
@@ -221,7 +221,7 @@ void isa_build(Context *ctx, Stream *in, Stream *out, Instruction *ins)
             {
                 //BYTE ADDRESS IS NOT AN OFFSET !!! 
                 //ensure symbol is in current page (high byte of address must be the same)
-                if( (ctx->byte_counter & 0xFF00) != (symbol->val & 0xFF00) )
+                if( (ctx->byte_counter & 0xFF00) != ( (size_t)symbol->val & 0xFF00) )
                 {
                     uint16_t page_start = (ctx->byte_counter & 0xFF00);
                     uint16_t page_end = (ctx->byte_counter & 0xFF00) + 0xFF;

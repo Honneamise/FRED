@@ -16,7 +16,7 @@ typedef struct DEVICE
 static DEVICE *devices = NULL;
 
 /**********/
-void devices_close() 
+void devices_close(void) 
 {
     DEVICE *d = devices;
 
@@ -51,7 +51,7 @@ void device_activate(uint8_t device_id)
     {
         if(d->id == device_id) 
         {
-            d->func(NULL);
+            d->func();
 
             return;
         }

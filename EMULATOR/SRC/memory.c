@@ -13,7 +13,7 @@ typedef struct MEMORY
 static MEMORY *memory = NULL;
 
 /**********/
-void memory_init() 
+void memory_init(void) 
 {
     memory = alloc(1, sizeof(MEMORY));
     
@@ -21,7 +21,7 @@ void memory_init()
 }
 
 /**********/
-void memory_close() 
+void memory_close(void) 
 {
     free(memory->data);
 
@@ -29,7 +29,7 @@ void memory_close()
 }
 
 /**********/
-uint8_t *memory_get_buffer()
+uint8_t *memory_get_buffer(void)
 {
     return memory->data;
 }

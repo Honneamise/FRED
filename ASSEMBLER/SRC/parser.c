@@ -58,12 +58,12 @@ void assembler_parse(Context *ctx, Stream *stream)
             {
                 void *ptr = NULL;
 
-                if( ptr = isa_get_instruction(token) )//instruction ?
+                if( (ptr = isa_get_instruction(token)) != NULL )//instruction ?
                 {
                     isa_parse(ctx, stream, ptr);
                 }
 
-                else if ( ptr = macro_get(token) )//macro ?
+                else if ( (ptr = macro_get(token)) != NULL )//macro ?
                 {
                     macro_parse(ctx, stream, ptr);
                 }

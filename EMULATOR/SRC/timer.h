@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-double timer_get();
+double timer_get(void);
 
 void timer_sleep(int64_t usec);
 

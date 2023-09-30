@@ -1,11 +1,12 @@
 #include "funcs.h"
 
-#include <stdint.h>
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <stdint.h>
 #include <GLFW/glfw3.h>
 
 /**********/
-double timer_get()
+double timer_get(void)
 {
     return glfwGetTime();
 }

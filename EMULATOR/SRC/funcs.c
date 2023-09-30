@@ -4,20 +4,19 @@
     #include <crtdbg.h>
 #endif
 
-#ifndef _CRTDBG_ALLOC_MEM_DF 
+/*#ifndef _CRTDBG_ALLOC_MEM_DF 
     #define _CRTDBG_ALLOC_MEM_DF 1
 #endif
 
 #ifndef _CRTDBG_LEAK_CHECK_DF
     #define _CRTDBG_LEAK_CHECK_DF 32
-#endif
+#endif*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdarg.h>
-#include <windows.h>
 
 /**********/
 void error(const char * format, ...)
@@ -55,48 +54,45 @@ void *alloc(size_t count, size_t size)
 }
 
 /**********/
-//TODO : add more checks
-void load_buffer(char *file, uint8_t **buffer, uint32_t *size)
+void load_buffer(char *file, uint8_t **buffer, size_t *size)
 {
-	size_t _size = 0;
+	size_t s = 0;
 
 	FILE *fp = fopen(file, "rb");
 
-	if (fp == NULL) { error("[%s][FAILED TO OPEN FILE][%s]", __func__, file); } 
+	if (!fp) { error("[%s][FAILED TO OPEN FILE][%s]", __func__, file); } 
 	else
 	{
-		fseek(fp, 0, SEEK_END);
+		if(fseek(fp, 0, SEEK_END) != 0) { error("[%s][FSEEK FAILED ON FILE][%s]", __func__, file); }
 
-		_size = ftell(fp);
+		s = ftell(fp);
 
-		*buffer = alloc( _size, sizeof(uint8_t));
+        if( s == -1L && errno >= 0) { error("[%s][FTELL FAILED ON FILE][%s]", __func__, file); }
 
-		fseek(fp, 0, SEEK_SET);
+		*buffer = alloc(s, sizeof(uint8_t));
 
-		size_t check = fread(*buffer, _size, 1, fp);
+		if(fseek(fp, 0, SEEK_SET) != 0) { error("[%s][FSEEK FAILED ON FILE][%s]", __func__, file); }
 
-		fclose(fp);
+		if(fread(*buffer, s, 1, fp) != 1 ) { error("[%s][FREAD FAILED ON FILE][%s]", __func__, file); }
+
+		if(fclose(fp) != 0) { error("[%s][FCLOSE FAILED ON FILE][%s]", __func__, file); }
 	}
 
-	if(size){ *size = (uint32_t)_size; }
+	if(size){ *size = s; }
 }
 
 /**********/
-//TODO: add more checks
 void save_buffer(char *file, uint8_t *buffer, uint32_t size)
 {
-	size_t _size = 0;
-
 	FILE *fp = fopen(file, "wb");
 
-	if (fp == NULL) { error("[%s][FAILED TO OPEN FILE][%s]", __func__, file); } 
+	if (!fp) { error("[%s][FAILED TO OPEN FILE][%s]", __func__, file); } 
 	else
 	{
-		size_t check = fwrite(buffer, size, 1, fp);
+		if(fwrite(buffer, size, 1, fp) != 1) { error("[%s][FWRITE FAILED ON FILE][%s]", __func__, file); }
 
-		fclose(fp);
+		if(fclose(fp) != 0) { error("[%s][FCLOSE FAILED ON FILE][%s]", __func__, file); }
 	}
-
 }
 
 /**********/

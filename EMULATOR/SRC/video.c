@@ -1,8 +1,10 @@
 #include "funcs.h"
 #include "memory.h"
 
-#include <stdio.h>
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <GL/gl.h>
 #include <GL/glext.h>
 #include <GLFW/glfw3.h>
@@ -92,8 +94,10 @@ void main()\n\
     Color = vec4( Palette[index], 1.0);\n\
 }";
 
+//test
+
 //log
-static PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog = NULL;
+static PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog = NULL; 
 static PFNGLDEBUGMESSAGECALLBACKPROC glDebugMessageCallback = NULL;
 
 //program
@@ -136,6 +140,8 @@ static PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays = NULL;
 /********/
 static void glfw_resize_callback(GLFWwindow *window, int width, int height)
 {
+    (void)window;//unused
+
     int x = 0;
 	int y = 0;
     int view_w = 0;
@@ -162,7 +168,7 @@ static void glfw_resize_callback(GLFWwindow *window, int width, int height)
 }
 
 /**********/
-static void glfw_init()
+static void glfw_init(void)
 {
     glfwInit();
 
@@ -179,7 +185,7 @@ static void glfw_init()
 }
 
 /**********/
-static void glfw_close()
+static void glfw_close(void)
 {
     glfwDestroyWindow(video->window);
  
@@ -189,7 +195,7 @@ static void glfw_close()
 /**********/
 /* OPENGL */
 /**********/
-static void opengl_load_extensions()
+static void opengl_load_extensions(void)
 {
     //log
     glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)glfwGetProcAddress("glGetProgramInfoLog");
@@ -240,6 +246,9 @@ static void APIENTRY opengl_debug_callback(
                 const GLchar* message,
                 const void* param)
 {
+    (void)length;//unused
+    (void)param;//unused
+
     if(severity!=GL_DEBUG_SEVERITY_NOTIFICATION)//too much spam
     {
         fprintf(stdout, 
@@ -254,21 +263,21 @@ static void APIENTRY opengl_debug_callback(
 }
 
 /**********/
-static GLuint opengl_shader(GLenum type, const uint8_t *src)
+static GLuint opengl_shader(GLenum type, const char *src)
 {
 	GLuint shader = glCreateShader(type);
 
-	glShaderSource(shader, 1, (const GLchar**)&src, NULL);
+	glShaderSource(shader, 1, &src, NULL);
 
 	glCompileShader(shader);
 
-	GLint check = GL_FALSE;
+	int check = GL_FALSE;
 
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &check);
 
 	if (check == GL_FALSE)
 	{
-		uint32_t len = 0;
+		int len = 0;
 
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
 
@@ -293,13 +302,13 @@ static GLuint opengl_program_shader(GLuint vert_shader, GLuint frag_shader)
 
 	glLinkProgram(prog_shader);
 
-	GLint check = GL_FALSE;
+	int check = GL_FALSE;
 
 	glGetProgramiv(prog_shader, GL_LINK_STATUS, &check);
 
 	if (check == GL_FALSE)
 	{
-		uint32_t len = 0;
+		int len = 0;
 
 		glGetProgramiv(prog_shader, GL_INFO_LOG_LENGTH, &len);
 
@@ -314,7 +323,7 @@ static GLuint opengl_program_shader(GLuint vert_shader, GLuint frag_shader)
 }
 
 /**********/
-static void opengl_init()
+static void opengl_init(void)
 {
     opengl_load_extensions();
 
@@ -351,8 +360,6 @@ static void opengl_init()
 	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, TEXTURE_W, TEXTURE_H, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
 
-    uint32_t len = 0;
-    
     video->vert_shader = opengl_shader(GL_VERTEX_SHADER, VERT_SRC);
     
     video->frag_shader = opengl_shader(GL_FRAGMENT_SHADER, FRAG_SRC);
@@ -365,7 +372,7 @@ static void opengl_init()
 }
 
 /**********/
-static void opengl_close()
+static void opengl_close(void)
 {
     glDeleteTextures(1, &video->texture);
 
@@ -389,7 +396,7 @@ static void opengl_close()
 /*********/
 /* VIDEO */
 /*********/
-void video_init()
+void video_init(void)
 {
     video = alloc(1, sizeof(VIDEO));
 
@@ -403,7 +410,7 @@ void video_init()
 }
 
 /**********/
-void video_close()
+void video_close(void)
 {
     opengl_close();
 
@@ -415,19 +422,19 @@ void video_close()
 }
 
 /**********/
-void video_poll()
+void video_poll(void)
 {
     glfwPollEvents();
 }
 
 /**********/
-int video_run()
+int video_run(void)
 {
     return !glfwWindowShouldClose(video->window);
 }
 
 /**********/
-void video_update_texture()
+void video_update_texture(void)
 {
     uint8_t *text = memory_get_buffer();
 
@@ -476,7 +483,7 @@ void video_update_texture()
 }
 
 /**********/
-void video_update()
+void video_update(void)
 {
     video_update_texture();
 
@@ -490,7 +497,7 @@ void video_update()
 }
 
 /**********/
-GLFWwindow *video_get_window()
+GLFWwindow *video_get_window(void)
 {
     return video->window;
 }

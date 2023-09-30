@@ -38,12 +38,12 @@ void assembler_build(Context *ctx, Stream *in, Stream *out)
             {
                 void *ptr = NULL;
 
-                if( ptr = isa_get_instruction(token) )//instruction ?
+                if( (ptr = isa_get_instruction(token)) != NULL )//instruction ?
                 {
                     isa_build(ctx, in, out, ptr);
                 }
 
-                else if ( ptr = macro_get(token) )//macro ?
+                else if ( (ptr = macro_get(token)) != NULL )//macro ?
                 {
                     macro_build(ctx, in, out, ptr);
                 }

@@ -42,6 +42,8 @@ static void org_p(Context *ctx, Stream *stream)
 /**********/
 static void org_b(Context *ctx, Stream *in, Stream *out)
 {
+    (void)out;//unused
+
     stream_skip_blanks(in);
 
     char *token = stream_get_token(in);
@@ -116,11 +118,11 @@ static void string_p(Context *ctx, Stream *stream)
     }
     
     //string body
-    char *start = &stream->buffer[stream->pos];
+    uint8_t *start = &stream->buffer[stream->pos];
 
     stream_skip_until(stream, STRING_DELIMITER);
 
-    char *end = &stream->buffer[stream->pos];
+    uint8_t *end = &stream->buffer[stream->pos];
 
     ctx->byte_counter += (uint16_t)(end-start);
 
@@ -140,11 +142,11 @@ static void string_b(Context *ctx, Stream *in, Stream *out)
     stream_expect(in, STRING_DELIMITER);
     
     //string body
-    char *start = &in->buffer[in->pos];
+    uint8_t *start = &in->buffer[in->pos];
 
     stream_skip_until(in, STRING_DELIMITER);
 
-    char *end = &in->buffer[in->pos];
+    uint8_t *end = &in->buffer[in->pos];
 
     for(;start!=end;start++)
     {
@@ -169,11 +171,11 @@ static void src_p(Context *ctx, Stream *stream)
         error("[%s][LINE %d][EXPECTED STRING DELIMITER]", __func__, stream->line);
     }
 
-    char *start = &stream->buffer[stream->pos];
+    uint8_t *start = &stream->buffer[stream->pos];
 
     stream_skip_until(stream, STRING_DELIMITER);
 
-    char *end = &stream->buffer[stream->pos];
+    uint8_t *end = &stream->buffer[stream->pos];
 
     //expect string end
     if(!stream_expect(stream, STRING_DELIMITER))
@@ -205,11 +207,11 @@ static void src_b(Context *ctx, Stream *in, Stream *out)
     //string start
     stream_expect(in, STRING_DELIMITER);
 
-    char *start = &in->buffer[in->pos];
+    uint8_t *start = &in->buffer[in->pos];
 
     stream_skip_until(in, STRING_DELIMITER);
 
-    char *end = &in->buffer[in->pos];
+    uint8_t *end = &in->buffer[in->pos];
 
     //expect string end
     stream_expect(in, STRING_DELIMITER);
@@ -242,11 +244,11 @@ static void bin_p(Context *ctx, Stream *stream)
         error("[%s][LINE %d][EXPECTED STRING DELIMITER]", __func__, stream->line);
     }
 
-    char *start = &stream->buffer[stream->pos];
+    uint8_t *start = &stream->buffer[stream->pos];
 
     stream_skip_until(stream, STRING_DELIMITER);
 
-    char *end = &stream->buffer[stream->pos];
+    uint8_t *end = &stream->buffer[stream->pos];
 
     //expect string end
     if(!stream_expect(stream, STRING_DELIMITER))
@@ -278,11 +280,11 @@ static void bin_b(Context *ctx, Stream *in, Stream *out)
     //string start
     stream_expect(in, STRING_DELIMITER);
 
-    char *start = &in->buffer[in->pos];
+    uint8_t *start = &in->buffer[in->pos];
 
     stream_skip_until(in, STRING_DELIMITER);
 
-    char *end = &in->buffer[in->pos];
+    uint8_t *end = &in->buffer[in->pos];
 
     //expect string end
     stream_expect(in, STRING_DELIMITER);

@@ -1,6 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#define UNDERSCORE '_'
 #include "funcs.h"
 #include "stream.h"
 
@@ -8,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+#define UNDERSCORE '_'
 
 /**********/
 Stream *stream_init(char *file)
@@ -22,7 +23,7 @@ Stream *stream_init(char *file)
 }
 
 /**********/
-Stream *stream_allocate(uint32_t size)
+Stream *stream_allocate(size_t size)
 {
     Stream *stream = alloc(1, sizeof(Stream));
 
@@ -89,10 +90,9 @@ uint8_t stream_expect(Stream *stream, char c)
 /**********/
 char *stream_get_token(Stream *stream)
 {
-    uint32_t pos = stream->pos;
+    size_t pos = stream->pos;
     uint32_t count = 0;
 
-    //while(pos<stream->buffer_size && isalnum(stream->buffer[pos])) 
     while(pos<stream->buffer_size && (isalnum(stream->buffer[pos]) || stream->buffer[pos]==UNDERSCORE) ) 
     { 
         pos++; 
@@ -117,10 +117,9 @@ char *stream_get_token(Stream *stream)
 //skip a token, 0 if failed
 uint8_t stream_skip_token(Stream *stream)
 {
-    uint32_t pos = stream->pos;
-    uint32_t count = 0;
+    size_t pos = stream->pos;
+    size_t count = 0;
 
-    //while(pos<stream->buffer_size && isalnum(stream->buffer[pos])) 
     while(pos<stream->buffer_size && (isalnum(stream->buffer[pos]) || stream->buffer[pos]==UNDERSCORE) ) 
     { 
         pos++; 
@@ -129,7 +128,7 @@ uint8_t stream_skip_token(Stream *stream)
   
     stream->pos += count;
 
-    return count;
+    return count != 0;
 }
 
 /**********/

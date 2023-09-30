@@ -3,9 +3,9 @@
 
 #include <stdint.h>
 
-typedef void(*Func)(void *data);
+typedef void(*Func)(void);
 
-void devices_close();
+void devices_close(void);
 
 void device_add(uint8_t id, Func func);
 

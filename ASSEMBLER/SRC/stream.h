@@ -1,23 +1,23 @@
 #ifndef STREAM_H
 #define STREAM_H
 
-#define EOL '\n'
-
 #include <stdint.h>
+
+#define EOL '\n'
 
 typedef struct Stream
 {
     uint8_t *buffer;
-    uint32_t buffer_size;
+    size_t buffer_size;
 
-    uint32_t pos;
+    size_t pos;
 	uint32_t line;
 
 } Stream;
 
 Stream *stream_init(char *file);
 
-Stream *stream_allocate(uint32_t);
+Stream *stream_allocate(size_t);
 
 void stream_close(Stream *stream);
 

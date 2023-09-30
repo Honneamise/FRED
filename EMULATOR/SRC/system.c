@@ -37,7 +37,7 @@ void system_init(char *charset_file, char *program_file)
     }
 
     uint8_t *buffer = NULL;
-    uint32_t buffer_size = 0;
+    size_t buffer_size = 0;
 
     //load charset
     load_buffer(charset_file, &buffer, &buffer_size);
@@ -62,7 +62,7 @@ void system_init(char *charset_file, char *program_file)
 }
 
 /**********/
-void system_close()
+void system_close(void)
 {
     io_close();
 

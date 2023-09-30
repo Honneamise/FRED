@@ -1,1 +1,1 @@
-cl.exe /analyze /W3 /MTd /TC SRC/*.c /FoBUILD/ /link /ENTRY:mainCRTStartup /SUBSYSTEM:CONSOLE /MACHINE:X64 /OUT:FRED_ASM.EXE
+cl.exe /analyze /W4 /MTd /TC SRC/*.c /FoBUILD/ /link /ENTRY:mainCRTStartup /SUBSYSTEM:CONSOLE /MACHINE:X64 /OUT:../DIST/FRED_ASM.EXE

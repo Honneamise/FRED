@@ -3,7 +3,7 @@
 #include "device.h"
 #include <stdint.h>
 #include <stdio.h>
-#include <windows.h>
+#include <stdlib.h>
 
 typedef struct IO
 {
@@ -22,14 +22,12 @@ typedef struct IO
     //uint8_t DMA_IN;//1bit lines
     //uint8_t DMA_OUT;//1bit lines
 
-    CRITICAL_SECTION mutex;
-
 } IO;
 
 static IO *io = NULL;
 
 /**********/
-void io_dump()
+void io_dump(void)
 {
     printf("IE: %d\n", (int)io->IE);
 
@@ -42,15 +40,13 @@ void io_dump()
 }
 
 /**********/
-void io_init() 
+void io_init(void) 
 {
     io = alloc(1, sizeof(IO));
-
-    InitializeCriticalSection(&io->mutex);
 }
 
 /**********/
-void io_close() 
+void io_close(void) 
 {
     free(io);
 }
@@ -58,8 +54,6 @@ void io_close()
 /**********/
 void io_set(IO_PARAM param, uint8_t val)
 {
-    EnterCriticalSection(&io->mutex);
-
     switch(param)
     {
         case IE         : io->IE        = val; break;
@@ -74,14 +68,11 @@ void io_set(IO_PARAM param, uint8_t val)
         break;
     }
 
-    LeaveCriticalSection(&io->mutex);
 }
 
 /**********/
 uint8_t io_get(IO_PARAM param)
 {
-    EnterCriticalSection(&io->mutex);
-
     uint8_t val = 0;
 
     switch(param)
@@ -97,8 +88,6 @@ uint8_t io_get(IO_PARAM param)
             error("[%s][INVALID I/O SELECTED]", __func__);
         break;
     }
-
-    LeaveCriticalSection(&io->mutex);
 
     return val;
 }

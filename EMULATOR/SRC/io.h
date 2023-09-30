@@ -15,11 +15,11 @@ typedef enum IO_PARAM
 
 } IO_PARAM;
 
-void io_dump();
+void io_dump(void);
 
-void io_init();
+void io_init(void);
 
-void io_close();
+void io_close(void);
 
 void io_set(IO_PARAM param, uint8_t val);
 

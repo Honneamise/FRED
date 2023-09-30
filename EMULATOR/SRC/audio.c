@@ -54,7 +54,7 @@ static char *openal_error(int32_t err)
 }
 
 /**********/
-static void openal_check_error()
+static void openal_check_error(void)
 {
     int32_t err = alGetError();
 
@@ -70,13 +70,12 @@ static void openal_generate_tone(uint8_t *buf, int32_t sample_rate, float freq)
     for(int32_t i=0;i<sample_rate;i++)
     {
         buf[i] = (uint8_t)( 0xFF * sin( M_PI*freq/sample_rate*i ) );
-    };
+    }
 }
 
 /**********/
-static void openal_init()
+static void openal_init(void)
 {
-
     char *name = (char *)alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
    
     audio->adev = alcOpenDevice(name);
@@ -122,7 +121,7 @@ static void openal_init()
 }
 
 /**********/
-static void openal_close()
+static void openal_close(void)
 {
     alSourceStop(audio->asrc_snd); 
 
@@ -144,7 +143,7 @@ static void openal_close()
 }
 
 /**********/
-static void stop_tone()
+static void stop_tone(void)
 {
     int32_t status = 0;
 
@@ -179,7 +178,7 @@ static void play_tone(int32_t tone)
 }
 
 /**********/
-void audio_init()
+void audio_init(void)
 {
     audio = alloc(1, sizeof(AUDIO));
 
@@ -187,7 +186,7 @@ void audio_init()
 }
 
 /**********/
-void audio_close()
+void audio_close(void)
 {
     openal_close();
 
@@ -195,7 +194,7 @@ void audio_close()
 }
 
 /**********/
-void audio_func(void *data)
+void audio_func(void)
 {
     uint8_t d = bus_read();
 

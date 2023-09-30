@@ -11,19 +11,19 @@ typedef struct BUS
 static BUS *bus = NULL;
 
 /**********/
-void bus_init() 
+void bus_init(void) 
 {
     bus = alloc(1, sizeof(BUS));
 }
 
 /**********/
-void bus_close() 
+void bus_close(void) 
 {
     free(bus);
 }
 
 /**********/
-uint8_t bus_read() 
+uint8_t bus_read(void) 
 {
     uint8_t byte = 0;
 

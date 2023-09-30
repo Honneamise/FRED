@@ -15,14 +15,14 @@ typedef struct Symbol
 
 typedef struct Context
 {
-    uint16_t byte_counter;
+    size_t byte_counter;
 
     Symbol *table;
 
 } Context;
 
 
-Context *context_init();
+Context *context_init(void);
 
 void context_close(Context *ctx);
 

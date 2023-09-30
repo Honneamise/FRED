@@ -8,7 +8,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
-#include <windows.h>
 
 typedef struct CPU
 {
@@ -29,7 +28,7 @@ typedef struct CPU
 static CPU *cpu = NULL;
 
 /*********/
-static void cpu_dump()
+static void cpu_dump(void)
 {
     printf("D: 0x%02X\n", cpu->D);
 
@@ -44,12 +43,13 @@ static void cpu_dump()
     for(int i=0;i<16;i++)
     {
         printf("R%d: 0x%04X\n", i, cpu->REGS[i]);
-    };
+    }
 }
 
 /*********/
 //R(P) <- R(P)-1; Bus <- M(R(0)) until an interrupt or DMA request
-static uint8_t cpu_IDL(uint8_t op)
+//NOTE so far we dont have any DMA, so it act like an HALT
+static uint8_t cpu_IDL(void)
 {
 	cpu->REGS[cpu->P]--;
 
@@ -89,7 +89,7 @@ static uint8_t cpu_DEC(uint8_t op)
 
 /*********/
 //R(P).0 <- M(R(P))
-static uint8_t cpu_BR(uint8_t op)
+static uint8_t cpu_BR(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
@@ -100,7 +100,7 @@ static uint8_t cpu_BR(uint8_t op)
 
 /*********/
 //if Q==1 then R(P).0 <- M(R(P)) else R(P) <- R(P) +1
-static uint8_t cpu_BQ(uint8_t op)
+static uint8_t cpu_BQ(void)
 {
 	if (io_get(Q) == 1)
 	{
@@ -111,14 +111,14 @@ static uint8_t cpu_BQ(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
 
 /*********/
 //if D==0 then R(P).0 <- M(R(P)) else R(P) <- R(P) +1
-static uint8_t cpu_BZ(uint8_t op)
+static uint8_t cpu_BZ(void)
 {
 	if (cpu->D == 0)
 	{
@@ -129,14 +129,14 @@ static uint8_t cpu_BZ(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
 
 /*********/
 //if DF==1 then R(P).0 <- M(R(P)) else R(P) <- R(P) +1
-static uint8_t cpu_BDF(uint8_t op)
+static uint8_t cpu_BDF(void)
 {
 	if (cpu->DF == 1)
 	{
@@ -147,14 +147,14 @@ static uint8_t cpu_BDF(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
 
 /*********/
 //if EF1==1 then R(P).0 <- M(R(P)) else R(P) <- R(P) +1
-static uint8_t cpu_B1(uint8_t op)
+static uint8_t cpu_B1(void)
 {
     if (io_get(EF1) == 1)
 	{
@@ -165,14 +165,14 @@ static uint8_t cpu_B1(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
 
 /*********/
 //if EF2==1 then R(P).0 <- M(R(P)) else R(P) <- R(P) +1
-static uint8_t cpu_B2(uint8_t op)
+static uint8_t cpu_B2(void)
 {
     if (io_get(EF2) == 1)
 	{
@@ -183,14 +183,14 @@ static uint8_t cpu_B2(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
 
 /*********/
 //if EF3==1 then R(P).0 <- M(R(P)) else R(P) <- R(P) +1
-static uint8_t cpu_B3(uint8_t op)
+static uint8_t cpu_B3(void)
 {
     if (io_get(EF3) == 1)
 	{
@@ -201,14 +201,14 @@ static uint8_t cpu_B3(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
 
 /*********/
 //if EF4==1 then R(P).0 <- M(R(P)) else R(P) <- R(P) +1
-static uint8_t cpu_B4(uint8_t op)
+static uint8_t cpu_B4(void)
 {
     if (io_get(EF4) == 1)
 	{
@@ -219,14 +219,14 @@ static uint8_t cpu_B4(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
 
 /*********/
 //R(P) <- R(P)+1;
-static uint8_t cpu_SKP(uint8_t op)
+static uint8_t cpu_SKP(void)
 {
 	cpu->REGS[cpu->P]++;
 
@@ -235,7 +235,7 @@ static uint8_t cpu_SKP(uint8_t op)
 
 /*********/
 //if Q==0 then R(P).0 <- M(R(P)) else R(P) <- R(P) +1
-static uint8_t cpu_BNQ(uint8_t op)
+static uint8_t cpu_BNQ(void)
 {
 	if (io_get(Q) == 0)
 	{
@@ -246,14 +246,14 @@ static uint8_t cpu_BNQ(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
 
 /*********/
 //if D!=0 then R(P).0 <- M(R(P)) else R(P) <- R(P) +1
-static uint8_t cpu_BNZ(uint8_t op)
+static uint8_t cpu_BNZ(void)
 {	
 	if (cpu->D != 0)
 	{
@@ -264,15 +264,15 @@ static uint8_t cpu_BNZ(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
 
 /*********/
 //if DF!=0 then R(P).0 <- M(R(P)) else R(P) <- R(P) +1
-static uint8_t cpu_BNF(uint8_t op)
-{	
+static uint8_t cpu_BNF(void)
+{	 
 	if (cpu->DF != 0)
 	{
 		uint8_t byte = memory_read(cpu->REGS[cpu->P]);
@@ -282,14 +282,14 @@ static uint8_t cpu_BNF(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
 
 /*********/
 //if EF1==0 then R(P).0 <- M(R(P)) else R(P) <- R(P) + 1
-static uint8_t cpu_BN1(uint8_t op)
+static uint8_t cpu_BN1(void)
 {
     if(io_get(EF1) == 0)
 	{
@@ -300,14 +300,14 @@ static uint8_t cpu_BN1(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
 
 /*********/
 //if EF2==0 then R(P).0 <- M(R(P)) else R(P) <- R(P) + 1
-static uint8_t cpu_BN2(uint8_t op)
+static uint8_t cpu_BN2(void)
 {
     if(io_get(EF2) == 0)
 	{
@@ -318,14 +318,14 @@ static uint8_t cpu_BN2(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
 
 /*********/
 //if EF3==0 then R(P).0 <- M(R(P)) else R(P) <- R(P) + 1
-static uint8_t cpu_BN3(uint8_t op)
+static uint8_t cpu_BN3(void)
 {
     if(io_get(EF3) == 0)
 	{
@@ -336,14 +336,14 @@ static uint8_t cpu_BN3(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
 
 /*********/
 //if EF4==0 then R(P).0 <- M(R(P)) else R(P) <- R(P) + 1
-static uint8_t cpu_BN4(uint8_t op)
+static uint8_t cpu_BN4(void)
 {
     if(io_get(EF4) == 0)
 	{
@@ -354,7 +354,7 @@ static uint8_t cpu_BN4(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P]++;
-	};
+	}
 
     return 2;
 }
@@ -381,7 +381,7 @@ static uint8_t cpu_STR(uint8_t op)
 
 /*********/
 //R(X) <- R(X)+1
-static uint8_t cpu_IRX(uint8_t op)
+static uint8_t cpu_IRX(void)
 {
 	cpu->REGS[cpu->X]++;
 
@@ -424,7 +424,7 @@ static uint8_t cpu_INP(uint8_t op)
 
 /*********/
 //(X,P) <- M(R(X)); R(X) <- R(X)+1; IE <- 1
-static uint8_t cpu_RET(uint8_t op) 
+static uint8_t cpu_RET(void) 
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
@@ -440,7 +440,7 @@ static uint8_t cpu_RET(uint8_t op)
 
 /*********/
 //(X,P) <- M(R(X)); R(X) <- R(X)+1; IE <- 0
-static uint8_t cpu_DIS(uint8_t op)
+static uint8_t cpu_DIS(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
@@ -456,7 +456,7 @@ static uint8_t cpu_DIS(uint8_t op)
 
 /*********/
 //D <- M(R(X)); R(X) <- R(X)+1
-static uint8_t cpu_LDXA(uint8_t op)
+static uint8_t cpu_LDXA(void)
 {
 	cpu->D = memory_read(cpu->REGS[cpu->X]);
 
@@ -467,7 +467,7 @@ static uint8_t cpu_LDXA(uint8_t op)
 
 /*********/
 //M(R(X)) <- D; R(X) <- R(X)-1
-static uint8_t cpu_STXD(uint8_t op)
+static uint8_t cpu_STXD(void)
 {
     memory_write(cpu->REGS[cpu->X], cpu->D);
 
@@ -478,12 +478,12 @@ static uint8_t cpu_STXD(uint8_t op)
 
 /*********/
 //DF,D <- M(R(X)) + D + DF
-static uint8_t cpu_ADC(uint8_t op)
+static uint8_t cpu_ADC(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
 	if ((byte + cpu->D + cpu->DF) > 0xFF) { cpu->DF = 1; }
-	else { cpu->DF = 0; };
+	else { cpu->DF = 0; }
 
 	cpu->D = (uint8_t)( byte + cpu->D + cpu->DF );
 
@@ -492,14 +492,14 @@ static uint8_t cpu_ADC(uint8_t op)
 
 /*********/
 //D,DF <- M(R(X)) - D - complement(DF)
-static uint8_t cpu_SDB(uint8_t op)
+static uint8_t cpu_SDB(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
     
     uint8_t compDF = !cpu->DF;
 
 	if (byte - cpu->D - compDF < 0) { cpu->DF = 1; }
-	else { cpu->DF = 0; };
+	else { cpu->DF = 0; }
 
 	cpu->D = (uint8_t)(byte - cpu->D - compDF);
 
@@ -508,7 +508,7 @@ static uint8_t cpu_SDB(uint8_t op)
 
 /*********/
 //shift D right one bit; MSB(D) <- DF ; DF <- LSB(D)
-static uint8_t cpu_SHRC(uint8_t op)
+static uint8_t cpu_SHRC(void)
 {
 	uint8_t lsb = cpu->D & 0x01;
 	
@@ -523,14 +523,14 @@ static uint8_t cpu_SHRC(uint8_t op)
 
 /*********/
 //DF,D <- D - M(R(X)) - complement(DF)
-static uint8_t cpu_SMB(uint8_t op)
+static uint8_t cpu_SMB(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
 	uint8_t compDF = !cpu->DF;
 	
 	if (cpu->D - byte - compDF < 0 ) { cpu->DF = 1; }
-	else { cpu->DF = 0; };
+	else { cpu->DF = 0; }
 	
 	cpu->D = (uint8_t)(cpu->D - byte - compDF);
 
@@ -539,7 +539,7 @@ static uint8_t cpu_SMB(uint8_t op)
 
 /*********/
 //M(R(X)) <- T
-static uint8_t cpu_SAV(uint8_t op)
+static uint8_t cpu_SAV(void)
 {
 	memory_write(cpu->REGS[cpu->X], cpu->T);
 
@@ -548,7 +548,7 @@ static uint8_t cpu_SAV(uint8_t op)
 
 /*********/
 //T <- X,P ; M(R(2) <- T; X <- P; R(2) <- R(2)-1
-static uint8_t cpu_MARK(uint8_t op)
+static uint8_t cpu_MARK(void)
 {
 	cpu->T = ((uint8_t)cpu->X << 4) + cpu->P;
 
@@ -563,7 +563,7 @@ static uint8_t cpu_MARK(uint8_t op)
 
 /*********/
 //Q <- 0
-static uint8_t cpu_REQ(uint8_t op)
+static uint8_t cpu_REQ(void)
 {
     io_set(Q, 0);
 
@@ -572,7 +572,7 @@ static uint8_t cpu_REQ(uint8_t op)
 
 /*********/
 //Q <- 1
-static uint8_t cpu_SEQ(uint8_t op)
+static uint8_t cpu_SEQ(void)
 {
 	io_set(Q, 1);
 
@@ -581,12 +581,12 @@ static uint8_t cpu_SEQ(uint8_t op)
 
 /*********/
 //DF, D <- M(R(P)) + D + DF; R(P) <- R(P)+1
-static uint8_t cpu_ADCI(uint8_t op)
+static uint8_t cpu_ADCI(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
 	if ((byte + cpu->D + cpu->DF) > 0xFF) { cpu->DF = 1; }
-	else { cpu->DF = 0; };
+	else { cpu->DF = 0; }
 
 	cpu->D = (uint8_t)(byte + cpu->D + cpu->DF);
 
@@ -597,14 +597,14 @@ static uint8_t cpu_ADCI(uint8_t op)
 
 /*********/
 //DF,D <- M(R(P)) - D - complement(DF); R(P) <- R(P)+1
-static uint8_t cpu_SDBI(uint8_t op)
+static uint8_t cpu_SDBI(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
 	uint8_t compDF = !cpu->DF;
 
 	if (byte - cpu->D - compDF < 0) { cpu->DF = 1; }
-	else { cpu->DF = 0; };
+	else { cpu->DF = 0; }
 
 	cpu->D = (uint8_t)(byte - cpu->D - compDF);
 
@@ -615,7 +615,7 @@ static uint8_t cpu_SDBI(uint8_t op)
 
 /*********/
 //shift D left one bit; LSB(D) <- DF ; DF <- MSB(D)
-static uint8_t cpu_SHLC(uint8_t op)
+static uint8_t cpu_SHLC(void)
 {
 	uint8_t msb = ((uint8_t)(cpu->D >> 7)) % 0x01;
 
@@ -630,14 +630,14 @@ static uint8_t cpu_SHLC(uint8_t op)
 
 /*********/
 //DF,D <- D - M(R(P)) - complement(DF); R(P) <- R(P)+1
-static uint8_t cpu_SMBI(uint8_t op)
+static uint8_t cpu_SMBI(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
 	uint8_t compDF = !cpu->DF;
 
 	if (cpu->D - byte - compDF < 0) { cpu->DF = 1; }
-	else { cpu->DF = 0; };
+	else { cpu->DF = 0; }
 
 	cpu->D = (uint8_t)(cpu->D - byte - compDF);
 
@@ -684,7 +684,7 @@ static uint8_t cpu_PHI(uint8_t op)
 
 /*********/
 //R(P).1 <- M(R(P)); R(P).0 <- M(R(P)+1);
-static uint8_t cpu_LBR(uint8_t op)
+static uint8_t cpu_LBR(void)
 {
 	uint8_t high = memory_read(cpu->REGS[cpu->P]);
 	uint8_t low = memory_read(cpu->REGS[cpu->P] + 1);
@@ -697,7 +697,7 @@ static uint8_t cpu_LBR(uint8_t op)
 /*********/
 //if Q==1 then R(P).1 <- M(R(P)); R(P).0 <- M(R(P)+1)
 //else R(P) <- R(P)+2
-static uint8_t cpu_LBQ(uint8_t op)
+static uint8_t cpu_LBQ(void)
 {
 	if ( io_get(Q) == 1)
 	{
@@ -709,7 +709,7 @@ static uint8_t cpu_LBQ(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P] += 2;
-	};
+	}
 
     return 3;
 }
@@ -717,9 +717,8 @@ static uint8_t cpu_LBQ(uint8_t op)
 /*********/
 //if D==0 then R(P).1 <- M(R(P)); R(P).0 <- M(R(P)+1);
 //else R(P) <- R(P)+2
-static uint8_t cpu_LBZ(uint8_t op)
+static uint8_t cpu_LBZ(void)
 {
-
 	if (cpu->D == 0)
 	{
 		uint8_t high = memory_read(cpu->REGS[cpu->P]);
@@ -730,7 +729,7 @@ static uint8_t cpu_LBZ(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P] += 2;
-	};
+	}
 
     return 3;
 }
@@ -738,9 +737,8 @@ static uint8_t cpu_LBZ(uint8_t op)
 /*********/
 //if DF==1 then R(P).1 <- M(R(P)); R(P).0 <- M(R(P)+1);
 //else R(P) <- R(P)+2	
-static uint8_t cpu_LBDF(uint8_t op)
+static uint8_t cpu_LBDF(void)
 {
-	
 	if (cpu->DF == 1)
 	{
 		uint8_t high = memory_read(cpu->REGS[cpu->P]);
@@ -751,14 +749,14 @@ static uint8_t cpu_LBDF(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P] += 2;
-	};
+	}
 
     return 3;
 }
 
 /*********/
 //R(P) <- R(P)+1
-static uint8_t cpu_NOP(uint8_t op)
+static uint8_t cpu_NOP(void)
 {	
 	cpu->REGS[cpu->P]++;
 
@@ -767,43 +765,43 @@ static uint8_t cpu_NOP(uint8_t op)
 
 /*********/
 //if Q==0 then R(P) <- R(P) + 2
-static uint8_t cpu_LSNQ(uint8_t op)
+static uint8_t cpu_LSNQ(void)
 {	
 	if (io_get(Q) == 0)
 	{
 		cpu->REGS[cpu->P] += 2;
-	};
+	}
 
     return 3;
 }
 
 /*********/
 //if D!=0 then R(P) <- R(P) + 2
-static uint8_t cpu_LSNZ(uint8_t op)
+static uint8_t cpu_LSNZ(void)
 {
 	if (cpu->D != 0)
 	{
 		cpu->REGS[cpu->P] += 2;
-	};
+	}
 
     return 3;
 }
 
 /*********/
 //if DF==0 then R(P) <- R(P) + 2
-static uint8_t cpu_LSNF(uint8_t op)
+static uint8_t cpu_LSNF(void)
 {	
 	if (cpu->DF == 0)
 	{
 		cpu->REGS[cpu->P] += 2;
-	};
+	}
 
     return 3;
 }
 
 /*********/
 //R(P) <- R(P) + 2
-static uint8_t cpu_LSKP(uint8_t op)
+static uint8_t cpu_LSKP(void)
 {	
 	cpu->REGS[cpu->P] += 2;
 
@@ -813,7 +811,7 @@ static uint8_t cpu_LSKP(uint8_t op)
 /*********/
 //if Q==0 then R(P).1 <- M(R(P)); R(P).0 <- M(R(P)+1)
 //else R(P) <- R(P)+2
-static uint8_t cpu_LBNQ(uint8_t op)
+static uint8_t cpu_LBNQ(void)
 {	
 	if (io_get(Q) == 0)
 	{
@@ -825,7 +823,7 @@ static uint8_t cpu_LBNQ(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P] += 2;
-	};
+	}
 
     return 3;
 }
@@ -833,7 +831,7 @@ static uint8_t cpu_LBNQ(uint8_t op)
 /*********/
 //if D!=0 then R(P).1 <- M(R(P)); R(P).0 <- M(R(P)+1);
 //else R(P) <- R(P)+2
-static uint8_t cpu_LBNZ(uint8_t op)
+static uint8_t cpu_LBNZ(void)
 {
 	if (cpu->D != 0)
 	{
@@ -845,7 +843,7 @@ static uint8_t cpu_LBNZ(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P] += 2;
-	};
+	}
 
     return 3;
 }
@@ -853,7 +851,7 @@ static uint8_t cpu_LBNZ(uint8_t op)
 /*********/
 //if DF==0 then R(P).1 <- M(R(P)); R(P).0 <- M(R(P)+1);
 //else R(P) <- R(P)+2
-static uint8_t cpu_LBNF(uint8_t op)
+static uint8_t cpu_LBNF(void)
 {
 	if (cpu->DF == 0)
 	{
@@ -865,57 +863,55 @@ static uint8_t cpu_LBNF(uint8_t op)
 	else
 	{
 		cpu->REGS[cpu->P] += 2;
-	};
+	}
 
     return 3;
 }
 
 /*********/
 //if IE==1 then R(P) <- R(P)+2
-static uint8_t cpu_LSIE(uint8_t op)
+static uint8_t cpu_LSIE(void)
 {
 	if (io_get(IE) == 1)
 	{
 		cpu->REGS[cpu->P] += 2;
-	};
+	}
 
     return 3;
 }
 
 /*********/
 //if Q==1 then R(P) <- R(P)+2
-static uint8_t cpu_LSQ(uint8_t op)
+static uint8_t cpu_LSQ(void)
 {
 	if (io_get(Q) == 1)
 	{
 		cpu->REGS[cpu->P] += 2;
-	};
+	}
 
     return 3;
 }
 
 /*********/
 //if D==0 then R(P) <- R(P)+2
-static uint8_t cpu_LSZ(uint8_t op)
+static uint8_t cpu_LSZ(void)
 {
-	
 	if (cpu->D == 0)
 	{
 		cpu->REGS[cpu->P] += 2;
-	};
+	}
 
     return 3;
 }
 
 /*********/
 //if DF==1 then R(P) <- R(P)+2
-static uint8_t cpu_LSDF(uint8_t op)
+static uint8_t cpu_LSDF(void)
 {
-	
 	if (cpu->DF == 1)
 	{
 		cpu->REGS[cpu->P] += 2;
-	};
+	}
 
     return 3;
 }
@@ -940,7 +936,7 @@ static uint8_t cpu_SEX(uint8_t op)
 
 /*********/
 //D <- M(R(X))
-static uint8_t cpu_LDX(uint8_t op)
+static uint8_t cpu_LDX(void)
 {	
 	cpu->D = memory_read(cpu->REGS[cpu->X]);
 
@@ -949,7 +945,7 @@ static uint8_t cpu_LDX(uint8_t op)
 
 /*********/
 //D <- M(R(X)) OR D
-static uint8_t cpu_OR(uint8_t op)
+static uint8_t cpu_OR(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
@@ -960,7 +956,7 @@ static uint8_t cpu_OR(uint8_t op)
 
 /*********/
 //D <- M(R(X)) AND D
-static uint8_t cpu_AND(uint8_t op)
+static uint8_t cpu_AND(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
@@ -971,7 +967,7 @@ static uint8_t cpu_AND(uint8_t op)
 
 /*********/
 //D <- M(R(X)) XOR D
-static uint8_t cpu_XOR(uint8_t op)
+static uint8_t cpu_XOR(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
@@ -982,12 +978,12 @@ static uint8_t cpu_XOR(uint8_t op)
 
 /*********/
 //DF,D <- M(R(X)) + D
-static uint8_t cpu_ADD(uint8_t op)
+static uint8_t cpu_ADD(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
 	if ((byte + cpu->D) > 0xFF) { cpu->DF = 1; }
-	else { cpu->DF = 0; };
+	else { cpu->DF = 0; }
 
 	cpu->D = (uint8_t)(byte+ cpu->D);
 
@@ -996,12 +992,12 @@ static uint8_t cpu_ADD(uint8_t op)
 
 /*********/
 //DF,D <- M(R(X)) - D
-static uint8_t cpu_SD(uint8_t op)
+static uint8_t cpu_SD(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
 	if ( cpu->D > byte ) { cpu->DF = 1; }
-	else { cpu->DF = 0; };
+	else { cpu->DF = 0; }
 
 	cpu->D = (uint8_t)(byte - cpu->D);
 
@@ -1010,7 +1006,7 @@ static uint8_t cpu_SD(uint8_t op)
 
 /*********/
 //Shift D right one bit; MSB(D) <- 0; DF <- LSB(D)
-static uint8_t cpu_SHR(uint8_t op)
+static uint8_t cpu_SHR(void)
 {	
 	cpu->DF = cpu->D & 0x01;
 	cpu->D = cpu->D >> 1;
@@ -1020,12 +1016,12 @@ static uint8_t cpu_SHR(uint8_t op)
 
 /*********/
 //DF,D <- D-M(R(X))
-static uint8_t cpu_SM(uint8_t op)
+static uint8_t cpu_SM(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
 	if (byte > cpu->D) { cpu->DF = 1; }
-	else { cpu->DF = 0; };
+	else { cpu->DF = 0; }
 
 	cpu->D = (uint8_t)(cpu->D - byte);
 
@@ -1034,7 +1030,7 @@ static uint8_t cpu_SM(uint8_t op)
 
 /*********/
 //D <-M(R(P)); R(P) <- R(P)+1
-static uint8_t cpu_LDI(uint8_t op)
+static uint8_t cpu_LDI(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
@@ -1047,7 +1043,7 @@ static uint8_t cpu_LDI(uint8_t op)
 
 /*********/
 //D <- M(R(P)) OR D; R(P) <- R(P)+1
-static uint8_t cpu_ORI(uint8_t op)
+static uint8_t cpu_ORI(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
@@ -1060,7 +1056,7 @@ static uint8_t cpu_ORI(uint8_t op)
 
 /*********/
 //D <- M(R(P)) AND D; R(P) <- R(P)+1
-static uint8_t cpu_ANI(uint8_t op)
+static uint8_t cpu_ANI(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
@@ -1073,7 +1069,7 @@ static uint8_t cpu_ANI(uint8_t op)
 
 /*********/
 //D <- M(R(P)) XOR D; R(P) <- R(P)+1
-static uint8_t cpu_XRI(uint8_t op)
+static uint8_t cpu_XRI(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
@@ -1086,12 +1082,12 @@ static uint8_t cpu_XRI(uint8_t op)
 
 /*********/
 //DF,D <- M(R(P)) + D; R(P) <- R(P)+1
-static uint8_t cpu_ADI(uint8_t op)
+static uint8_t cpu_ADI(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
 	if ((cpu->D + byte) > 0xFF) { cpu->DF = 1; }
-	else { cpu->DF = 0; };
+	else { cpu->DF = 0; }
 
 	cpu->D = (uint8_t)(byte + cpu->D);
 
@@ -1102,12 +1098,12 @@ static uint8_t cpu_ADI(uint8_t op)
 
 /*********/
 //DF,D <- M(R(P)) - D; R(P) <- R(P)+1
-static uint8_t cpu_SDI(uint8_t op)
+static uint8_t cpu_SDI(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
 	if ( cpu->D > byte ) { cpu->DF = 1; }
-	else { cpu->DF = 0; };
+	else { cpu->DF = 0; }
 
 	cpu->D = (uint8_t)(byte - cpu->D);
 
@@ -1118,7 +1114,7 @@ static uint8_t cpu_SDI(uint8_t op)
 
 /*********/
 //Shift left one bit; LSB(D) <- 0 ; DF <- MSB(D)
-static uint8_t cpu_SHL(uint8_t op)
+static uint8_t cpu_SHL(void)
 {	
 	cpu->DF = ((uint8_t)cpu->D >> 7) & 0x01;
 
@@ -1129,12 +1125,12 @@ static uint8_t cpu_SHL(uint8_t op)
 
 /*********/
 //DF,D <- D - M(R(P)); R(P) <- R(P)+1
-static uint8_t cpu_SMI(uint8_t op)
+static uint8_t cpu_SMI(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
 	if ( byte > cpu->D ) { cpu->DF = 1; }
-	else { cpu->DF = 0; };
+	else { cpu->DF = 0; }
 
 	cpu->D = (uint8_t)(cpu->D - byte);
 
@@ -1148,7 +1144,7 @@ static uint8_t cpu_execute0(uint8_t op)
 {
 	if((op & 0x0F)==0)
 	{
-		return cpu_IDL(op);
+		return cpu_IDL();
 	}
 	else
 	{
@@ -1173,26 +1169,26 @@ static uint8_t cpu_execute3(uint8_t op)
 {
 	switch (op & 0x0F)
 	{
-        case 0x00: return cpu_BR(op);
-        case 0x01: return cpu_BQ(op);
-        case 0x02: return cpu_BZ(op);
-        case 0x03: return cpu_BDF(op);
+        case 0x00: return cpu_BR();
+        case 0x01: return cpu_BQ();
+        case 0x02: return cpu_BZ();
+        case 0x03: return cpu_BDF();
 
-        case 0x04: return cpu_B1(op);
-        case 0x05: return cpu_B2(op);
-        case 0x06: return cpu_B3(op);
-        case 0x07: return cpu_B4(op);
+        case 0x04: return cpu_B1();
+        case 0x05: return cpu_B2();
+        case 0x06: return cpu_B3();
+        case 0x07: return cpu_B4();
 
-        case 0x08: return cpu_SKP(op);
-        case 0x09: return cpu_BNQ(op);
-        case 0x0A: return cpu_BNZ(op);
-        case 0x0B: return cpu_BNF(op);
+        case 0x08: return cpu_SKP();
+        case 0x09: return cpu_BNQ();
+        case 0x0A: return cpu_BNZ();
+        case 0x0B: return cpu_BNF();
 
-        case 0x0C: return cpu_BN1(op);
-        case 0x0D: return cpu_BN2(op);
-        case 0x0E: return cpu_BN3(op);
-        case 0x0F: return cpu_BN4(op);
-	};
+        case 0x0C: return cpu_BN1();
+        case 0x0D: return cpu_BN2();
+        case 0x0E: return cpu_BN3();
+        case 0x0F: return cpu_BN4();
+	}
 
 	return 0;
 }
@@ -1214,7 +1210,7 @@ static uint8_t cpu_execute6(uint8_t op)
 {
     switch(op & 0x0F)
     {
-        case 0x00: return cpu_IRX(op);
+        case 0x00: return cpu_IRX();
 
         case 0x01:
         case 0x02:
@@ -1243,23 +1239,23 @@ static uint8_t cpu_execute7(uint8_t op)
 {
 	switch (op & 0x0F)
 	{
-        case 0x00: return cpu_RET(op);
-        case 0x01: return cpu_DIS(op);
-        case 0x02: return cpu_LDXA(op);
-        case 0x03: return cpu_STXD(op);
-        case 0x04: return cpu_ADC(op);
-        case 0x05: return cpu_SDB(op);
-        case 0x06: return cpu_SHRC(op);
-        case 0x07: return cpu_SMB(op);
-        case 0x08: return cpu_SAV(op);
-        case 0x09: return cpu_MARK(op);
-        case 0x0A: return cpu_REQ(op);
-        case 0x0B: return cpu_SEQ(op);
-        case 0x0C: return cpu_ADCI(op);
-        case 0x0D: return cpu_SDBI(op);
-        case 0x0E: return cpu_SHLC(op);
-        case 0x0F: return cpu_SMBI(op); 
-	};
+        case 0x00: return cpu_RET();
+        case 0x01: return cpu_DIS();
+        case 0x02: return cpu_LDXA();
+        case 0x03: return cpu_STXD();
+        case 0x04: return cpu_ADC();
+        case 0x05: return cpu_SDB();
+        case 0x06: return cpu_SHRC();
+        case 0x07: return cpu_SMB();
+        case 0x08: return cpu_SAV();
+        case 0x09: return cpu_MARK();
+        case 0x0A: return cpu_REQ();
+        case 0x0B: return cpu_SEQ();
+        case 0x0C: return cpu_ADCI();
+        case 0x0D: return cpu_SDBI();
+        case 0x0E: return cpu_SHLC();
+        case 0x0F: return cpu_SMBI(); 
+	}
 
 	return 0;
 }
@@ -1293,24 +1289,24 @@ static uint8_t cpu_executeC(uint8_t op)
 {
 	switch(op & 0x0F)
 	{
-        case 0x00: return cpu_LBR(op);
-        case 0x01: return cpu_LBQ(op);
-        case 0x02: return cpu_LBZ(op);
-        case 0x03: return cpu_LBDF(op);
-        case 0x04: return cpu_NOP(op);
-        case 0x05: return cpu_LSNQ(op);
-        case 0x06: return cpu_LSNZ(op);
-        case 0x07: return cpu_LSNF(op);
-        case 0x08: return cpu_LSKP(op);
-        case 0x09: return cpu_LBNQ(op);
-        case 0x0A: return cpu_LBNZ(op);
-        case 0x0B: return cpu_LBNF(op);
-        case 0x0C: return cpu_LSIE(op);
-        case 0x0D: return cpu_LSQ(op);
-        case 0x0E: return cpu_LSZ(op);
-        case 0x0F: return cpu_LSDF(op);
+        case 0x00: return cpu_LBR();
+        case 0x01: return cpu_LBQ();
+        case 0x02: return cpu_LBZ();
+        case 0x03: return cpu_LBDF();
+        case 0x04: return cpu_NOP();
+        case 0x05: return cpu_LSNQ();
+        case 0x06: return cpu_LSNZ();
+        case 0x07: return cpu_LSNF();
+        case 0x08: return cpu_LSKP();
+        case 0x09: return cpu_LBNQ();
+        case 0x0A: return cpu_LBNZ();
+        case 0x0B: return cpu_LBNF();
+        case 0x0C: return cpu_LSIE();
+        case 0x0D: return cpu_LSQ();
+        case 0x0E: return cpu_LSZ();
+        case 0x0F: return cpu_LSDF();
         
-	};
+	}
 
 	return 0;
 }
@@ -1332,23 +1328,23 @@ static uint8_t cpu_executeF(uint8_t op)
 {
 	switch (op & 0x0F)
 	{
-        case 0x00: return cpu_LDX(op);
-        case 0x01: return cpu_OR(op);
-        case 0x02: return cpu_AND(op);
-        case 0x03: return cpu_XOR(op);
-        case 0x04: return cpu_ADD(op);
-        case 0x05: return cpu_SD(op);
-        case 0x06: return cpu_SHR(op);
-        case 0x07: return cpu_SM(op);
-        case 0x08: return cpu_LDI(op);
-        case 0x09: return cpu_ORI(op);
-        case 0x0A: return cpu_ANI(op);
-        case 0x0B: return cpu_XRI(op);
-        case 0x0C: return cpu_ADI(op);
-        case 0x0D: return cpu_SDI(op);
-        case 0x0E: return cpu_SHL(op);
-        case 0x0F: return cpu_SMI(op);
-	};
+        case 0x00: return cpu_LDX();
+        case 0x01: return cpu_OR();
+        case 0x02: return cpu_AND();
+        case 0x03: return cpu_XOR();
+        case 0x04: return cpu_ADD();
+        case 0x05: return cpu_SD();
+        case 0x06: return cpu_SHR();
+        case 0x07: return cpu_SM();
+        case 0x08: return cpu_LDI();
+        case 0x09: return cpu_ORI();
+        case 0x0A: return cpu_ANI();
+        case 0x0B: return cpu_XRI();
+        case 0x0C: return cpu_ADI();
+        case 0x0D: return cpu_SDI();
+        case 0x0E: return cpu_SHL();
+        case 0x0F: return cpu_SMI();
+	}
 
 	return 0;
 }
@@ -1382,13 +1378,13 @@ static uint8_t cpu_execute(uint8_t op)
         case 0xD0: return cpu_executeD(op);
         case 0xE0: return cpu_executeE(op);
         case 0xF0: return cpu_executeF(op);
-	};
+	}
 
 	return 0;
 }
 
 /**********/
-void cpu_init()
+void cpu_init(void)
 {
     cpu = alloc(1, sizeof(CPU));
 
@@ -1399,13 +1395,13 @@ void cpu_init()
 }
 
 /**********/
-void cpu_close()
+void cpu_close(void)
 {
     free(cpu);
 }
 
 /**********/
-uint8_t cpu_run()
+uint8_t cpu_run(void)
 {
     //NOTE : DMA SHOULD NOT GO HERE
     // if (dma) { execute dma and return value ??? }

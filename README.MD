@@ -60,6 +60,7 @@ FRED
 ├── DIST
 │   ├── charset.rom
 |   ├── program.bin
+|   ├── program.asm
 |   ├── FRED_ASM.EXE
 |   ├── FRED_EMU.EXE
 |   ├── glfw3.dll
@@ -68,6 +69,9 @@ FRED
 |
 └── README.MD
 ```
+**NOTE :<BR>
+The "DIST" folder contains the binary distribution of the project, with precompiled assembler and emulator.<BR>
+In the same folder are also provided all the required DLLs, a sample character set, and a sample program (with asm source) for the emulator**
 
 ## ASSEMBLER
 
@@ -90,8 +94,6 @@ In order to run the emulator, in the same folder of the executable must be prese
 - OpenAL32.dll
 - soft_oal.dll
 ```
-
-**NOTE : the "DIST" folder contains all required dlls, a sample charset and a sample program** 
 
 To invoke the emulator with custom parameters use :
 ```
@@ -141,10 +143,34 @@ Currently working on the following :
 - separate function pointers for IN/OUT calls
 
 The future improvements of the project will include the implementation of the following functionalities :
-- an (optional) block device 
-- an (optional) graphic mode
+- dma
+- a block device 
+- a graphic mode
 
-## REFERENCE
+## HISTORY
+
+**30-09-2023**
+
+    - added controls for failure of functions handling files
+    - in agreement with Pan of SpinningKids, used the VS static analyzer in conjunction with /W4 and /Wall to spot potential problems
+    - planning to do future investigations using Re-Sharper analyzer
+
+**24-09-2023**
+
+    - changed the folder structure
+    - the EXT folder now contains 3rd party dependencies
+    - the DIST folder now contains the binary distribution of the project
+    - the BUILD folders are dedicated to builds, batch files have been updated
+    - added CMakeLists.txt file for cmake builds
+    - changed command line invocation (removed defaults)
+    - shaders are now integrated in the source code (see video.c)
+    - updated documentation based on code changes
+
+**12-09-2023**
+
+    - Initial release
+
+## REFERENCES
 
 - OPENGL : https://www.opengl.org
 

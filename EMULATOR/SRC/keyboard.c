@@ -4,7 +4,7 @@
 #include "video.h"
 #include <stdint.h>
 #include <stdio.h>
-#include <windows.h>
+#include <stdlib.h>
 #include <GLFW/glfw3.h>
 
 /*
@@ -50,7 +50,7 @@ static void keyboard_push(uint8_t val)
 }
 
 /**********/
-static uint8_t keyboard_pop()
+static uint8_t keyboard_pop(void)
 {
     uint8_t next = 0;
     uint8_t data = 0;
@@ -78,6 +78,8 @@ static uint8_t keyboard_pop()
 /**********/
 static void keyboard_glfw_char_callback(GLFWwindow *window, unsigned int codepoint)
 {
+    (void)window;//unused
+
     if(codepoint < 128)
     {
         keyboard_push((uint8_t)codepoint);
@@ -88,10 +90,16 @@ static void keyboard_glfw_char_callback(GLFWwindow *window, unsigned int codepoi
 static void keyboard_glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     //TODO : FIND A SOLUTION FOR DEAD KEYS
+
+    (void)window;//unused
+    (void)key;//unused
+    (void)scancode;//unused
+    (void)action;//unused
+    (void)mods;//unused
 }
 
 /**********/
-void keyboard_init()
+void keyboard_init(void)
 {
     keyboard = alloc(1, sizeof(KEYBOARD));
 
@@ -101,13 +109,13 @@ void keyboard_init()
 }
 
 /**********/
-void keyboard_close()
+void keyboard_close(void)
 {
     free(keyboard);
 }
 
 /**********/
-void keyboard_func(void *data)
+void keyboard_func(void)
 {
     uint8_t val = keyboard_pop();
 

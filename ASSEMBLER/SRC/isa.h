@@ -26,7 +26,7 @@ typedef enum PARAM_TYPE
 
 typedef struct Instruction
 {
-    uint8_t *name;
+    char *name;
     uint8_t opcode;
     PARAM_TYPE param_type;
     uint8_t param_size;

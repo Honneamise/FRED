@@ -2,14 +2,6 @@
     #include <crtdbg.h>
 #endif
 
-#ifndef _CRTDBG_ALLOC_MEM_DF 
-    #define _CRTDBG_ALLOC_MEM_DF 1
-#endif
-
-#ifndef _CRTDBG_LEAK_CHECK_DF
-    #define _CRTDBG_LEAK_CHECK_DF 32
-#endif
-
 #include "funcs.h"
 #include "macro.h"
 #include "parser.h"

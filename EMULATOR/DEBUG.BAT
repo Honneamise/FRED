@@ -1,1 +1,1 @@
-cl.exe /analyze /W3 /MTd /TC /I EXT/INCLUDE SRC/*.c /FoBUILD/ /link opengl32.lib EXT/LIB/GLFW/glfw3dll.lib EXT/LIB/OPENAL/OpenAL32.lib /ENTRY:mainCRTStartup /SUBSYSTEM:CONSOLE /MACHINE:X64 /OUT:FRED_EMU.EXE 
+cl.exe /analyze /Wall /MTd /TC /I EXT/INCLUDE SRC/*.c /FoBUILD/ /link opengl32.lib EXT/LIB/GLFW/glfw3dll.lib EXT/LIB/OPENAL/OpenAL32.lib /ENTRY:mainCRTStartup /SUBSYSTEM:CONSOLE /MACHINE:X64 /OUT:../DIST/FRED_EMU.EXE 
