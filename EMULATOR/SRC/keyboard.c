@@ -13,6 +13,16 @@ if FRONT == BACK --> the buffer is empty
 if (FRONT + 1) == BACK --> the buffer is full
 */
 
+#define KEY_BACKSPACE 0x08
+#define KEY_TAB       0x09
+#define KEY_ENTER     0x0D
+#define KEY_DELETE    0x18
+#define KEY_ESCAPE    0x1B
+#define KEY_RIGHT     0x1C
+#define KEY_LEFT      0x1D
+#define KEY_UP        0x1E
+#define KEY_DOWN      0x1F
+
 #define KEYBOARD_BUFFER_SIZE 64
 
 typedef struct KEYBOARD
@@ -80,7 +90,7 @@ static void keyboard_glfw_char_callback(GLFWwindow *window, unsigned int codepoi
 {
     (void)window;//unused
 
-    if(codepoint < 128)
+    if(codepoint < 256)
     {
         keyboard_push((uint8_t)codepoint);
     }
@@ -89,13 +99,32 @@ static void keyboard_glfw_char_callback(GLFWwindow *window, unsigned int codepoi
 /**********/
 static void keyboard_glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    //TODO : FIND A SOLUTION FOR DEAD KEYS
-
     (void)window;//unused
-    (void)key;//unused
     (void)scancode;//unused
-    (void)action;//unused
-    (void)mods;//unused
+    (void)mods;//unused*/
+
+    if(action == GLFW_PRESS)
+    {
+        uint8_t val = 0;
+
+        switch(key)
+        {
+            case GLFW_KEY_BACKSPACE:    val = KEY_BACKSPACE;    break;
+            case GLFW_KEY_TAB:          val = KEY_TAB;          break;
+            case GLFW_KEY_ENTER:        val = KEY_ENTER;        break;
+            case GLFW_KEY_DELETE:       val = KEY_DELETE;       break;
+            case GLFW_KEY_ESCAPE:       val = KEY_ESCAPE;       break;
+            case GLFW_KEY_RIGHT:        val = KEY_RIGHT;        break;
+            case GLFW_KEY_LEFT:         val = KEY_LEFT;         break;
+            case GLFW_KEY_DOWN:         val = KEY_DOWN;         break;
+            case GLFW_KEY_UP:           val = KEY_UP;           break;
+
+            default: break;
+        }
+
+        if(val) { keyboard_push(val); }
+    }
+    
 }
 
 /**********/

@@ -11,7 +11,6 @@
 #include "keyboard.h"
 #include "clock.h"
 #include "audio.h"
-#include "device.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -55,18 +54,17 @@ void system_init(char *charset_file, char *program_file)
     keyboard_init();
     audio_init();
 
-    //add id and function to devices list
-    device_add(1, keyboard_func);
-    device_add(2, clock_func);
-    device_add(3, audio_func);
+    //add devices to IO system
+    io_add_device(1, keyboard_func, NULL);
+    io_add_device(2, clock_func, NULL);
+    io_add_device(3, NULL, audio_func);
+
 }
 
 /**********/
 void system_close(void)
 {
     io_close();
-
-    devices_close();
 
     bus_close();
     

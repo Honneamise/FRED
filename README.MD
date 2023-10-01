@@ -140,7 +140,6 @@ Basic informations and several code snippets are provided in the [ASM](DOCS/ASM.
 
 Currently working on the following :
 - detection of non-printable keys of the keyboard
-- separate function pointers for IN/OUT calls
 
 The future improvements of the project will include the implementation of the following functionalities :
 - dma
@@ -149,6 +148,11 @@ The future improvements of the project will include the implementation of the fo
 
 ## HISTORY
 
+**01-10-2023**
+    - merged device functions in io system
+    - splitted function pointers into calls for INP or OUT
+    - added minimal support for dead keys (BACKSPACE,TAB,ENTER,DELETE,ESCAPE,RIGHT,LEFT,UP,DOWN)
+    
 **30-09-2023**
 
     - added controls for failure of functions handling files

@@ -1,9 +1,17 @@
 #include "funcs.h"
 #include "io.h"
-#include "device.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#define NUM_DEVICES 7
+
+typedef struct Device
+{
+    IO_func input;
+    IO_func output;
+
+} Device;
 
 typedef struct IO
 {
@@ -15,6 +23,8 @@ typedef struct IO
     uint8_t EF2;//1bit lines
     uint8_t EF3;//1bit lines
     uint8_t EF4;//1bit lines
+
+    Device devices[NUM_DEVICES];
 
     //uint8_t N_LINES;// 3 x 1 bit IO lines
 
@@ -64,7 +74,7 @@ void io_set(IO_PARAM param, uint8_t val)
         case EF4        : io->EF4       = val; break;
 
         default:
-            error("[%s][INVALID I/O SELECTED]", __func__);
+            error("[%s][INVALID PARAM I/O SELECTED]", __func__);
         break;
     }
 
@@ -85,10 +95,44 @@ uint8_t io_get(IO_PARAM param)
         case EF4        : val = io->EF4;      break;
 
         default:
-            error("[%s][INVALID I/O SELECTED]", __func__);
+            error("[%s][INVALID I/O PARAM SELECTED]", __func__);
         break;
     }
 
     return val;
+}
+
+/**********/
+void io_add_device(uint8_t id, IO_func input, IO_func output)
+{
+    if(id<1 || id>7) { error("[%s][INVALID I/O DEVICE SELECTED]", __func__); }
+    else
+    {
+        io->devices[id-1].input = input;
+
+        io->devices[id-1].output = output;
+    }
+}
+
+/**********/
+void io_activate_device(uint8_t id, uint8_t io_op)
+{
+    if(id<1 || id>7) { error("[%s][INVALID I/O DEVICE SELECTED]", __func__); }
+    else
+    {
+        if(io_op == IO_INP && io->devices[id-1].input) 
+        { 
+            io->devices[id-1].input();
+        }
+        else if (io_op == IO_OUT && io->devices[id-1].output) 
+        {
+            io->devices[id-1].output();
+        }
+        else 
+        { 
+            error("[%s][INVALID I/O DEVICE OPERATION OR FUNCTION SELECTED][ID:%d]", __func__, id); 
+        }
+    
+    }
 }
 

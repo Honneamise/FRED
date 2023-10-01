@@ -2,7 +2,6 @@
 #include "memory.h"
 #include "bus.h"
 #include "io.h"
-#include "device.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -398,7 +397,7 @@ static uint8_t cpu_OUT(uint8_t op)
 	
 	bus_write(byte);
 	
-    device_activate(device_id);
+    io_activate_device(device_id, IO_OUT);
 
     cpu->REGS[cpu->X]++;
     
@@ -411,7 +410,7 @@ static uint8_t cpu_INP(uint8_t op)
 {
     uint8_t device_id = (op & 0x0F) - 0x08;
 
-    device_activate(device_id);
+    io_activate_device(device_id, IO_INP);
 
     uint8_t byte = bus_read(); 
 
