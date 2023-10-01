@@ -138,9 +138,6 @@ Basic informations and several code snippets are provided in the [ASM](DOCS/ASM.
 
 ## DEVELOPMENT
 
-Currently working on the following :
-- detection of non-printable keys of the keyboard
-
 The future improvements of the project will include the implementation of the following functionalities :
 - dma
 - a block device 
