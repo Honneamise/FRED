@@ -5,6 +5,6 @@ void audio_init(void);
 
 void audio_close(void);
 
-void audio_func(void);
+void audio_output_func(void);
 
 #endif

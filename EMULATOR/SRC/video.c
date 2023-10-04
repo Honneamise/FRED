@@ -1,4 +1,5 @@
 #include "funcs.h"
+#include "bus.h"
 #include "memory.h"
 
 #define WIN32_LEAN_AND_MEAN
@@ -9,17 +10,27 @@
 #include <GL/glext.h>
 #include <GLFW/glfw3.h>
 
-#define WINDOW_W        960
-#define WINDOW_H        600
+#define VIDEO_MEMORY_SIZE   2000
 
-#define TEXTURE_W       320
-#define TEXTURE_H       200
+#define RATIO               1.6f
 
-#define ROWS            25
-#define COLS            40
+#define WINDOW_W            960
+#define WINDOW_H            600
 
-#define OPENGL_MAJOR    4
-#define OPENGL_MINOR    3
+#define TEXT_MODE           0
+#define GRAPH_MODE          1
+
+#define TEXT_IMAGE_W        320
+#define TEXT_IMAGE_H        200
+
+#define GRAPH_IMAGE_W       160
+#define GRAPH_IMAGE_H       100
+
+#define ROWS                25
+#define COLS                40
+
+#define OPENGL_MAJOR        4
+#define OPENGL_MINOR        3
 
 typedef struct VIDEO
 {
@@ -32,9 +43,12 @@ typedef struct VIDEO
     GLuint vert_shader;
     GLuint frag_shader;
     GLuint prog_shader;
-
     GLuint texture;
-    uint8_t *texture_buffer;
+   
+    //buffer for texture
+    uint8_t *image;
+
+    uint8_t mode;
 
 } VIDEO;
 
@@ -94,8 +108,6 @@ void main()\n\
     Color = vec4( Palette[index], 1.0);\n\
 }";
 
-//test
-
 //log
 static PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog = NULL; 
 static PFNGLDEBUGMESSAGECALLBACKPROC glDebugMessageCallback = NULL;
@@ -147,17 +159,15 @@ static void glfw_resize_callback(GLFWwindow *window, int width, int height)
     int view_w = 0;
     int view_h = 0;
 
-	float ratio = (float)TEXTURE_W/(float)TEXTURE_H;
-
-	if( width/ratio < height)
+	if( width/RATIO < height)
 	{
 		view_w = width;
-		view_h = (int)(view_w/ratio);
+		view_h = (int)(view_w/RATIO);
 	}
 	else
 	{
 		view_h = height;
-		view_w = (int)(view_h*ratio);
+		view_w = (int)(view_h*RATIO);
 	}
 
 	x = (width - view_w)/2;
@@ -358,7 +368,7 @@ static void opengl_init(void)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, TEXTURE_W, TEXTURE_H, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
+	//glTexImage2D(...);
 
     video->vert_shader = opengl_shader(GL_VERTEX_SHADER, VERT_SRC);
     
@@ -396,17 +406,124 @@ static void opengl_close(void)
 /*********/
 /* VIDEO */
 /*********/
+static void video_set_mode(uint8_t mode)
+{
+    video->mode = mode;
+
+    uint8_t byte = 0x00;
+
+    if(video->mode == TEXT_MODE)
+    {
+        byte = 0xF0;
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, TEXT_IMAGE_W, TEXT_IMAGE_H, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
+    }
+    else if(video->mode == GRAPH_MODE)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, GRAPH_IMAGE_W, GRAPH_IMAGE_H, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
+    }
+    else
+    {
+        error("[%s][INVALID VIDEO MODE SELECTED]", __func__);
+    }
+
+    uint8_t *memory = memory_get_buffer();
+
+    //clear video memory
+    for(uint16_t i=0;i<VIDEO_MEMORY_SIZE;i+=2)
+    {
+        memory[i]   = 0x00; 
+        memory[i+1] = byte;
+    }
+
+}
+
+/**********/
+static void video_update_text_image(void)
+{
+    uint8_t *memory = memory_get_buffer();
+
+    uint8_t *charset_base = memory_get_buffer() + CHARSET_BASE;
+      
+    //pixel pos in texture
+    uint16_t posx = 0;
+    uint16_t posy = 0;
+
+    for(uint16_t count=0;count<VIDEO_MEMORY_SIZE;count+=2)
+    {
+        uint8_t *glyph_base = charset_base + memory[count] * 8  ;
+
+        posy = ( (count/2) / COLS) * 8;
+        
+        //for each byte of the glyph
+        for(uint8_t i=0;i<8;i++)
+        {
+            posx = ( (count/2) % COLS) * 8;
+
+            uint8_t byte = glyph_base[i];
+            
+            for(uint8_t j=0;j<8;j++)
+            {
+                uint16_t index = posy * TEXT_IMAGE_W + posx;
+
+                if( (byte & 0x80) == 0x80) 
+                {
+                    video->image[index] = (memory[(count+1)] & 0xF0) >> 4;
+                }
+                else
+                {
+                    video->image[index] = memory[(count+1)] & 0x0F;
+                }
+
+                byte = (uint8_t)(byte << 1);
+
+                //increase posx
+                posx++;
+            }
+
+            //increase posy
+            posy++;
+        }
+    }
+}
+
+/**********/
+static void video_update_graph_image(void)
+{
+    uint8_t *memory = memory_get_buffer();
+
+    uint16_t index = 0;
+    
+    //for each byte
+    for(uint16_t i=0;i<VIDEO_MEMORY_SIZE;i++)
+    {
+        uint8_t byte = memory[i];
+
+        for(uint8_t j=0;j<8;j++)
+        {
+            video->image[index] = ((byte & 0x80) == 0x80) ? 0x0F : 0x00;
+
+            byte = (uint8_t)byte << 1;
+
+            index++;
+        }
+    }
+}
+
+/**********/
 void video_init(void)
 {
     video = alloc(1, sizeof(VIDEO));
 
-    video->texture_buffer = alloc(TEXTURE_W*TEXTURE_H,sizeof(uint8_t));
+    //max possible size of texture
+    video->image = alloc(TEXT_IMAGE_W*TEXT_IMAGE_H, sizeof(uint8_t));
 
     glfw_init();
 
     opengl_init();
 
     glfw_resize_callback(video->window, WINDOW_W, WINDOW_H);
+
+    video_set_mode(TEXT_MODE);
 }
 
 /**********/
@@ -416,7 +533,7 @@ void video_close(void)
 
     glfw_close();
 
-    free(video->texture_buffer);
+    free(video->image);
 
     free(video);
 }
@@ -434,63 +551,21 @@ int video_run(void)
 }
 
 /**********/
-void video_update_texture(void)
-{
-    uint8_t *text = memory_get_buffer();
-
-    uint8_t *charset_base = memory_get_buffer() + CHARSET_BASE;
-      
-    //pixel pos in texture
-    uint16_t posx = 0;
-    uint16_t posy = 0;
-
-    for(uint16_t count=0;count<ROWS*COLS*2;count+=2)
-    {
-        uint8_t *glyph_base = charset_base + text[(count)] * 8  ;
-
-        posy = ( (count/2) / COLS) * 8;
-        
-        //for each byte of the glyph
-        for(uint8_t i=0;i<8;i++)
-        {
-            posx = ( (count/2) % COLS) * 8;
-
-            uint8_t byte = glyph_base[i];
-            
-            for(uint8_t j=0;j<8;j++)
-            {
-                uint16_t index = posy * TEXTURE_W + posx;
-
-                if( (byte & 0x80) == 0x80) 
-                {
-                    video->texture_buffer[index] = (text[(count+1)] & 0xF0) >> 4;
-                }
-                else
-                {
-                    video->texture_buffer[index] = text[(count+1)] & 0x0F;
-                }
-
-                byte = (uint8_t)(byte << 1);
-
-                //increase posx
-                posx++;
-            }
-
-            //increase posy
-            posy++;
-        }
-    }
-}
-
-/**********/
 void video_update(void)
 {
-    video_update_texture();
-
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, TEXTURE_W, TEXTURE_H, GL_RED, GL_UNSIGNED_BYTE, video->texture_buffer);
-
+    if(video->mode == TEXT_MODE) 
+    { 
+        video_update_text_image(); 
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, TEXT_IMAGE_W, TEXT_IMAGE_H, GL_RED, GL_UNSIGNED_BYTE, video->image);
+    }
+    else
+    {
+        video_update_graph_image();
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, GRAPH_IMAGE_W, GRAPH_IMAGE_H, GL_RED, GL_UNSIGNED_BYTE, video->image);
+    }
+    
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glfwSwapBuffers(video->window);
@@ -500,4 +575,18 @@ void video_update(void)
 GLFWwindow *video_get_window(void)
 {
     return video->window;
+}
+
+/**********/
+void video_input_func(void)
+{
+    bus_write(video->mode);
+}
+
+/**********/
+void video_output_func(void)
+{
+    uint8_t d = bus_read();
+
+    video_set_mode(d);
 }

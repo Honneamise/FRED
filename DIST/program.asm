@@ -30,12 +30,12 @@ SCREEN:
         BNZ     SCREEN      ; if not zero branch
 
 WAIT_KEY:
-        BN1     WAIT_KEY    ; wait until signal on EF1
+        BN2     WAIT_KEY    ; wait until signal on EF2
 
 EMPTY:
-        INP     1           ; M(R(X)) <- BUS; D <- BUS
+        INP     2           ; M(R(X)) <- BUS; D <- BUS
 
-        B1      EMPTY       ; empty the keyboard buffer
+        B2      EMPTY       ; empty the keyboard buffer
 
         BR      LOOP        ; repeat
 

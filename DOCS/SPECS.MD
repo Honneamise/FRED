@@ -36,7 +36,23 @@ remaining bytes
 ## VIDEO
 Every 16.6 msec the video device reads the 2000 byte of the memory from 0x000 to 0x07CF updating the display.
 
-The video memory have the following layout:
+The video device can be set in TEXT or GRAPH mode :
+
+- __TEXT__  : 40x25 characters, 16 colors
+- __GRAPH__ :160x100 pixels, monochrome
+
+To handle the video device write a value on the data bus using : **OUT 1** 
+
+To select the __TEXT__ mode (_default_) output the value **0x00** 
+
+To select the __GRAPH__ mode output the value **0x01**
+
+To get the current video mode read the data bus with : **INP 1**
+
+## TEXT MODE
+
+The video memory in text have the following layout:
+
 ```
         0   1 ║ 2   3 ║ 4   5 ║ ... ║78  79
       ┌───┼───╫───┼───╫───┼───╫─────╫───┼───╖
@@ -67,28 +83,30 @@ Each character is followed by an attribute byte with foreground/background color
              ||
 foreground --||-- background
 ```
-this will produce : <span style="color:#FF0000;background-color:#000000">☻</span>
+this will produce : ☻
 
 The 16 available colors for the byte attribute nibble are:
 
-<span style="color:#000000">█0</span>
-<span style="color:#800000">█1</span>
-<span style="color:#008000">█2</span>
-<span style="color:#808000">█3</span>
-<span style="color:#000080">█4</span>
-<span style="color:#800080">█5</span>
-<span style="color:#008080">█6</span>
-<span style="color:#C0C0C0">█7</span>
-<span style="color:#808080">█8</span>
-<span style="color:#FF0000">█9</span>
-<span style="color:#00FF00">█A</span>
-<span style="color:#FFFF00">█B</span>
-<span style="color:#0000FF">█C</span>
-<span style="color:#FF00FF">█D</span>
-<span style="color:#00FFFF">█E</span>
-<span style="color:#FFFFFF">█F</span>
+```
+0 - Black
+1 - Maroon
+2 - Green
+3 - Olive
+4 - Navy
+5 - Purple
+6 - Teal
+7 - Silver
+8 - Gray
+9 - Red
+A - Lime
+B - Yellow
+C - Blue
+D - Magenta
+E - Cyan
+F - White
+```
 
-(By default the video memory attributes are initialized with : 0xF0 white on black)
+_(By default the video memory attributes are initialized with : 0xF0 white on black)_
 
 ## CHARSET
 
@@ -100,13 +118,36 @@ The emulator will load the binary file containing the set starting at memory loc
 
 **NOTE** : a great resource for fonts is [int10h.org](https://int10h.org/oldschool-pc-fonts/fontlist/), just be sure to select a 8x8 format.
 
+
+## GRAPH MODE
+
+In graph mode each line is 20 bytes long and there are 100 lines.
+
+Each byte contains 8 pixels (16,000 total pixels):
+
+```
+    ╓7┬6┬5┬4┬3┬2┬1┬0╖
+    ║ │ │ │ │ │ │ │ ║
+    ╙╥┴╥┴╥┴╥┴╥┴╥┴╥┴╥╜  bits mask
+     ║ ║ ║ ║ ║ ║ ║ ╚══► 0:  01H  eighth pixel in byte
+     ║ ║ ║ ║ ║ ║ ╚════► 1:  02H  seventh pixel in byte
+     ║ ║ ║ ║ ║ ╚══════► 2:  04H  sixth pixel in byte
+     ║ ║ ║ ║ ╚════════► 3:  08H  fifth pixel in byte
+     ║ ║ ║ ╚══════════► 4:  10H  fourth pixel in byte
+     ║ ║ ╚════════════► 5:  20H  third pixel in byte
+     ║ ╚══════════════► 6:  40H  second pixel in byte
+     ╚════════════════► 7:  80H  first pixel in byte
+```
+
+Each 1-bit field selects _black_ (0) or _white_ (1).
+
 ## KEYBOARD
 
 The keyboard has a 64 byte buffer that stores the ASCII values of keystrokes. 
 
-If the keyboard buffer contains data, **EF1** is set to **1**, otherwise to **0**.
+If the keyboard buffer contains data, **EF2** is set to **2**, otherwise to **0**.
 
-To pop data from the buffer read the data bus with : **INP 1**
+To pop data from the buffer read the data bus with : **INP 2**
 
 ## TIMER
 
@@ -114,13 +155,13 @@ It is available a clock that is activated **16.6** times per second.
 
 At every activation the clock is increased by **1**, upon reaching **60** the clock resets to **0**.
 
-To get the current clock value read the data bus with : **INP 2**
+To get the current clock value read the data bus with : **INP 3**
 
 ## AUDIO
 
 There are availables 48 different notes to play.
 
-To handle the audio device write a value on the data bus using : **OUT 3** 
+To handle the audio device write a value on the data bus using : **OUT 4** 
 
 To start the playback of a note output a value between **0x01** and **0x30** (both included).
 

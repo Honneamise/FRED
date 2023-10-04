@@ -194,7 +194,7 @@ void audio_close(void)
 }
 
 /**********/
-void audio_func(void)
+void audio_output_func(void)
 {
     uint8_t d = bus_read();
 

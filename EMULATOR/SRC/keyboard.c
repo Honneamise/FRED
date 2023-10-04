@@ -38,7 +38,7 @@ static KEYBOARD *keyboard = NULL;
 /**********/
 static void keyboard_push(uint8_t val)
 {
-    io_set(EF1, 1);
+    io_set(EF2, 1);
 
     uint8_t next = 0;
 
@@ -76,10 +76,10 @@ static uint8_t keyboard_pop(void)
 
     keyboard->back = next;
 
-    //if empty set EF1 low
+    //if empty set EF2 low
     if (keyboard->front == keyboard->back)
     { 
-        io_set(EF1, 0); 
+        io_set(EF2, 0); 
     }
 
     return data;
@@ -101,7 +101,7 @@ static void keyboard_glfw_key_callback(GLFWwindow* window, int key, int scancode
 {
     (void)window;//unused
     (void)scancode;//unused
-    (void)mods;//unused*/
+    (void)mods;//unused
 
     if(action == GLFW_PRESS)
     {
@@ -144,7 +144,7 @@ void keyboard_close(void)
 }
 
 /**********/
-void keyboard_func(void)
+void keyboard_input_func(void)
 {
     uint8_t val = keyboard_pop();
 

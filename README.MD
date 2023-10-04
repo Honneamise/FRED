@@ -12,12 +12,18 @@ Both tools have been build from scratch in C language.
 
 The system emulate the following components :
 ```
-- CPU      : RCA CDP1802
-- MEMORY   : 64 KB
-- VIDEO    : 40x25 characters, 16 colors
-- KEYBOARD : standard keyboard
-- TIMER    : activation 16.6 times per second
-- SOUND    : 48 tones speaker
+- CPU       : RCA CDP1802
+
+- MEMORY    : 64 KB
+
+- VIDEO     : text mode 40x25 characters, 16 colors
+            : graph mode 160x100 pixels, 2 colors
+
+- KEYBOARD  : standard keyboard
+
+- TIMER     : activation 16.6 times per second
+
+- SOUND     : 48 tones speaker
 ```
 
 For details of specifications refer to the [SPECS](DOCS/SPECS.MD) section.
@@ -141,11 +147,19 @@ Basic informations and several code snippets are provided in the [ASM](DOCS/ASM.
 The future improvements of the project will include the implementation of the following functionalities :
 - dma
 - a block device 
-- a graphic mode
+- a graphic mode ( ADD OPTION TO SELECT FG COLOR ?)
 
 ## HISTORY
 
+**04-10-2023**
+
+    - created separated video mode for TEXT and GRAPH
+    - added asm example to set video mode
+    - updated documentation
+    - adjusted devices orders
+
 **01-10-2023**
+
     - merged device functions in io system
     - splitted function pointers into calls for INP or OUT
     - added minimal support for dead keys (BACKSPACE,TAB,ENTER,DELETE,ESCAPE,RIGHT,LEFT,UP,DOWN)

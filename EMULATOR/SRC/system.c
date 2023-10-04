@@ -28,13 +28,6 @@ void system_init(char *charset_file, char *program_file)
 
     video_init();
 
-    //init video memory attributes
-    // 0xF0 = white on black
-    for(int i=1;i<2000;i+=2)
-    {
-        memory_get_buffer()[i] = 0xF0;
-    }
-
     uint8_t *buffer = NULL;
     size_t buffer_size = 0;
 
@@ -55,9 +48,10 @@ void system_init(char *charset_file, char *program_file)
     audio_init();
 
     //add devices to IO system
-    io_add_device(1, keyboard_func, NULL);
-    io_add_device(2, clock_func, NULL);
-    io_add_device(3, NULL, audio_func);
+    io_add_device(1, video_input_func, video_output_func);
+    io_add_device(2, keyboard_input_func, NULL);
+    io_add_device(3, clock_input_func, NULL);
+    io_add_device(4, NULL, audio_output_func);
 
 }
 

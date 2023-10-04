@@ -5,6 +5,6 @@ void keyboard_init(void);
 
 void keyboard_close(void);
 
-void keyboard_func(void);
+void keyboard_input_func(void);
 
 #endif

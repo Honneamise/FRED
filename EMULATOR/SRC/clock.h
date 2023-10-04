@@ -3,6 +3,6 @@
 
 void clock_update(void);
 
-void clock_func(void);
+void clock_input_func(void);
 
 #endif

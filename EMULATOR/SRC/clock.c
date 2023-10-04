@@ -10,9 +10,7 @@ void clock_update(void)
     if(clock>=60) { clock=0; }
 }
 
-void clock_func(void)
+void clock_input_func(void)
 {
-    uint8_t val = clock;
-
-    bus_write(val);
+    bus_write(clock);
 }
