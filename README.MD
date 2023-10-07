@@ -145,11 +145,18 @@ Basic informations and several code snippets are provided in the [ASM](DOCS/ASM.
 ## DEVELOPMENT
 
 The future improvements of the project will include the implementation of the following functionalities :
+- implementing the original library for arithmethic subroutines
 - dma
-- a block device 
-- a graphic mode ( ADD OPTION TO SELECT FG COLOR ?)
+- block devices
 
 ## HISTORY
+
+**07-10-2023**
+
+    - enhanced BYTE macro to support labels nibbles
+    - added more macros : LOAD, RESERVE and WORD
+    - added registers aliases
+    - updated documentation
 
 **04-10-2023**
 

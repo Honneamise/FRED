@@ -4,6 +4,9 @@
 #include <stdint.h>
 
 #define EOL '\n'
+#define UNDERSCORE '_'
+#define COMMA ','
+#define STRING_DELIMITER '"'
 
 typedef struct Stream
 {

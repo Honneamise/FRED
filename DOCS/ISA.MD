@@ -1,4 +1,20 @@
 
+# REGISTER ALIAS
+
+| NAME | NUMBER |
+| --- | --- |  
+| SP | R2 |
+| PC | R3 |
+| CALL | R4 |
+| RETN | R5 |
+| LINK | R6 |
+| AR | RA |
+| NR | RB |
+| CR | RC |
+| MA | RD |
+| MQ | RE |
+| AC | RF |
+
 # INSTRUCTIONS
 
 | IDL    ||

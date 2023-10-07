@@ -8,8 +8,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#define UNDERSCORE '_'
-
 /**********/
 Stream *stream_init(char *file)
 {

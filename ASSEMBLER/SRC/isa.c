@@ -87,10 +87,47 @@ static Instruction ISA[] =
     { "SMI",  0xFF, BYTE,           1 },
 };
 
+static char *REGISTERS_ALIAS[] = 
+{
+    "",
+    "",
+    "SP",
+    "PC",
+    "CALL",
+    "RETN",
+    "LINK",
+    "",
+    "",
+    "",
+    "AR",
+    "NR",
+    "CR",
+    "MA",
+    "MQ",
+    "AC"
+};
+
 /**********/
-//return the index of the register, -1 on errors
+// return the index of the register, -1 if not alias
+static int8_t isa_get_alias_register(char *reg)
+{
+    for(int8_t i=0;i<16;i++)
+    {
+        if(strcmp(reg, REGISTERS_ALIAS[i])==0) { return i; }
+    }
+
+    return -1;
+}
+
+/**********/
+// return the index of the register, -1 on errors
 int8_t isa_get_register(char *reg)
 {
+    //is an alias ?
+    int8_t alias = isa_get_alias_register(reg);
+    if(alias!=-1){ return alias; }
+
+    //explicit register
     uint16_t val = 0;
 
     if(reg[0]!='R') { return -1; }
@@ -105,7 +142,7 @@ int8_t isa_get_register(char *reg)
 /**********/
 Instruction *isa_get_instruction(char *name)
 {
-    for(int i=0;i<ARRAY_SIZE(ISA);i++)
+    for(uint8_t i=0;i<ARRAY_SIZE(ISA);i++)
     {
         if(strcmp(name,ISA[i].name)==0) { return &ISA[i]; }
     }

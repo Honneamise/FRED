@@ -31,6 +31,30 @@ Store one or more byte as binary data, for multiple values use the comma as sepa
 BYTE 0x01
 
 BYTE 0x01,0x02,0x03
+
+BYTE LABEL.1
+```
+
+## WORD
+
+Store one or more word as binary data, for multiple values use the comma as separator.
+
+```
+WORD 0x1234
+
+WORD 0x1234, 0x5678
+
+WORD 0xFF ; will store the word [00][FF]
+
+WORD LABEL ; will store the address value of LABEL
+```
+
+## RESERVE
+
+Reserve a given number of bytes using 0x00 as filler.
+
+```
+RESERVE 123
 ```
 
 ## STRING
@@ -55,4 +79,18 @@ Include the contents of a file as binary data
 
 ```
 INCLUDE_SRC "file.bin"
+```
+
+## LOAD
+
+Load a register with a value taken from a register, a number or a label.
+
+```
+LOAD R1,0x69    ; will store 0x0069 in R1
+
+LOAD R1,0x1234  ; will store 0x1234 in R1
+
+LOAD R1,R2      ; will store the value of R2 in R1
+
+LOAD R1,LABEL   ; will store the address value of LABEL in R1
 ```
