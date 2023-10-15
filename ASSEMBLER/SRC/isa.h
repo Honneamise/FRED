@@ -6,12 +6,6 @@
 
 #include <stdint.h>
 
-#define COMMENT_START ';'
-#define SYMBOL_MARKER ':'
-#define BYTE_SEPARATOR '.'
-#define HIGH_BYTE '1'
-#define LOW_BYTE '0'
-
 //IO refer to EF1 to EF4
 typedef enum PARAM_TYPE
 {

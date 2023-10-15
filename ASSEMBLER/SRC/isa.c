@@ -1,5 +1,6 @@
 #include "funcs.h"
 #include "isa.h"
+#include "parser.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -177,7 +178,7 @@ void isa_parse(Context *ctx, Stream *stream, Instruction *ins)
                 error("[%s][LINE %d][MISSING PARAMETER]", __func__, stream->line);
             }
 
-            if( stream_expect(stream, BYTE_SEPARATOR) )
+            if( stream_expect(stream, DOT) )
             {
                 if(!stream_expect(stream, HIGH_BYTE) && !stream_expect(stream, LOW_BYTE))
                 {
@@ -196,7 +197,7 @@ void isa_parse(Context *ctx, Stream *stream, Instruction *ins)
 
 /**********/
 void isa_build(Context *ctx, Stream *in, Stream *out, Instruction *ins)
-{
+{               
     char *token = NULL;
     Symbol *symbol = NULL;
     uint16_t val = 0;
@@ -258,10 +259,13 @@ void isa_build(Context *ctx, Stream *in, Stream *out, Instruction *ins)
             {
                 //BYTE ADDRESS IS NOT AN OFFSET !!! 
                 //ensure symbol is in current page (high byte of address must be the same)
-                if( (ctx->byte_counter & 0xFF00) != ( (size_t)symbol->val & 0xFF00) )
+                //from manual : " In other words, the address of the immediate byte determines 
+                //the page to which a branch takes place."
+                
+                if( ((ctx->byte_counter+1) & 0xFF00) != ( symbol->val & 0xFF00) )
                 {
-                    uint16_t page_start = (ctx->byte_counter & 0xFF00);
-                    uint16_t page_end = (ctx->byte_counter & 0xFF00) + 0xFF;
+                    uint16_t page_start = ((ctx->byte_counter+1) & 0xFF00);
+                    uint16_t page_end = ((ctx->byte_counter+1) & 0xFF00) + 0xFF;
                     error("[%s][LINE %d][SYMBOL ADDRESS MUST BE IN CURRENT PAGE 0x%04X-0x%04X][FOUND 0x%04X]", 
                             __func__, in->line, page_start, page_end, symbol->val);
                 }
@@ -316,7 +320,7 @@ void isa_build(Context *ctx, Stream *in, Stream *out, Instruction *ins)
 
             symbol = context_get_symbol(ctx, token);
 
-            if(symbol && stream_expect(in, BYTE_SEPARATOR))//symbol ?
+            if(symbol && stream_expect(in, DOT))//symbol ?
             {
                 stream_write_byte(out, ins->opcode);
 

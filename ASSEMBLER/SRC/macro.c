@@ -68,7 +68,7 @@ static void byte_p(Context *ctx, Stream *stream)
             error("[%s][LINE %d][EXPECTED BYTE]", __func__, stream->line);
         }
         
-        if( stream_expect(stream, BYTE_SEPARATOR) )
+        if( stream_expect(stream, DOT) )
         {
             if(!stream_expect(stream, HIGH_BYTE) && !stream_expect(stream, LOW_BYTE))
             {
@@ -100,7 +100,7 @@ static void byte_b(Context *ctx, Stream *in, Stream *out)
         {
             stream_write_byte(out, (uint8_t)val);
         }
-        else if( (symbol = context_get_symbol(ctx,token)) != NULL && stream_expect(in, BYTE_SEPARATOR))//label
+        else if( (symbol = context_get_symbol(ctx,token)) != NULL && stream_expect(in, DOT))//label
         {
             if(stream_expect(in, HIGH_BYTE))
             {
@@ -236,7 +236,7 @@ static void string_p(Context *ctx, Stream *stream)
     stream_skip_blanks(stream);
 
     //string start
-    if(!stream_expect(stream, STRING_DELIMITER))
+    if(!stream_expect(stream, QUOTE))
     {
         error("[%s][LINE %d][EXPECTED STRING DELIMITER]", __func__, stream->line);
     }
@@ -244,14 +244,14 @@ static void string_p(Context *ctx, Stream *stream)
     //string body
     uint8_t *start = &stream->buffer[stream->pos];
 
-    stream_skip_until(stream, STRING_DELIMITER);
+    stream_skip_until(stream, QUOTE);
 
     uint8_t *end = &stream->buffer[stream->pos];
 
     ctx->byte_counter += (uint16_t)(end-start);
 
     //string end
-    if(!stream_expect(stream, STRING_DELIMITER))
+    if(!stream_expect(stream, QUOTE))
     {
         error("[%s][LINE %d][EXPECTED STRING DELIMITER]", __func__, stream->line);
     }
@@ -263,12 +263,12 @@ static void string_b(Context *ctx, Stream *in, Stream *out)
     stream_skip_blanks(in);
 
     //string start
-    stream_expect(in, STRING_DELIMITER);
+    stream_expect(in, QUOTE);
     
     //string body
     uint8_t *start = &in->buffer[in->pos];
 
-    stream_skip_until(in, STRING_DELIMITER);
+    stream_skip_until(in, QUOTE);
 
     uint8_t *end = &in->buffer[in->pos];
 
@@ -279,7 +279,7 @@ static void string_b(Context *ctx, Stream *in, Stream *out)
 
     ctx->byte_counter += (uint16_t)(end-start);
 
-    stream_expect(in, STRING_DELIMITER);
+    stream_expect(in, QUOTE);
 }
 
 /***************/
@@ -290,19 +290,19 @@ static void src_p(Context *ctx, Stream *stream)
     stream_skip_blanks(stream);
 
     //string start
-    if(!stream_expect(stream, STRING_DELIMITER))
+    if(!stream_expect(stream, QUOTE))
     {
         error("[%s][LINE %d][EXPECTED STRING DELIMITER]", __func__, stream->line);
     }
 
     uint8_t *start = &stream->buffer[stream->pos];
 
-    stream_skip_until(stream, STRING_DELIMITER);
+    stream_skip_until(stream, QUOTE);
 
     uint8_t *end = &stream->buffer[stream->pos];
 
     //expect string end
-    if(!stream_expect(stream, STRING_DELIMITER))
+    if(!stream_expect(stream, QUOTE))
     {
         error("[%s][LINE %d][EXPECTED STRING DELIMITER]", __func__, stream->line);
     }
@@ -329,16 +329,16 @@ static void src_b(Context *ctx, Stream *in, Stream *out)
     stream_skip_blanks(in);
 
     //string start
-    stream_expect(in, STRING_DELIMITER);
+    stream_expect(in, QUOTE);
 
     uint8_t *start = &in->buffer[in->pos];
 
-    stream_skip_until(in, STRING_DELIMITER);
+    stream_skip_until(in, QUOTE);
 
     uint8_t *end = &in->buffer[in->pos];
 
     //expect string end
-    stream_expect(in, STRING_DELIMITER);
+    stream_expect(in, QUOTE);
 
     //get file name
     char *file_name = alloc( (end-start)+1, sizeof(char));
@@ -363,19 +363,19 @@ static void bin_p(Context *ctx, Stream *stream)
     stream_skip_blanks(stream);
 
     //string start
-    if(!stream_expect(stream, STRING_DELIMITER))
+    if(!stream_expect(stream, QUOTE))
     {
         error("[%s][LINE %d][EXPECTED STRING DELIMITER]", __func__, stream->line);
     }
 
     uint8_t *start = &stream->buffer[stream->pos];
 
-    stream_skip_until(stream, STRING_DELIMITER);
+    stream_skip_until(stream, QUOTE);
 
     uint8_t *end = &stream->buffer[stream->pos];
 
     //expect string end
-    if(!stream_expect(stream, STRING_DELIMITER))
+    if(!stream_expect(stream, QUOTE))
     {
         error("[%s][LINE %d][EXPECTED STRING DELIMITER]", __func__, stream->line);
     }
@@ -402,16 +402,16 @@ static void bin_b(Context *ctx, Stream *in, Stream *out)
     stream_skip_blanks(in);
 
     //string start
-    stream_expect(in, STRING_DELIMITER);
+    stream_expect(in, QUOTE);
 
     uint8_t *start = &in->buffer[in->pos];
 
-    stream_skip_until(in, STRING_DELIMITER);
+    stream_skip_until(in, QUOTE);
 
     uint8_t *end = &in->buffer[in->pos];
 
     //expect string end
-    stream_expect(in, STRING_DELIMITER);
+    stream_expect(in, QUOTE);
 
     //get file name
     char *file_name = alloc( (end-start)+1, sizeof(char));
@@ -548,9 +548,9 @@ static Macro MACROS[] =
     {"WORD", word_p, word_b},
     {"RESERVE", reserve_p, reserve_b},
     {"STRING", string_p, string_b},
-    {"INCLUDE_SRC", src_p, src_b},
-    {"INCLUDE_BIN", bin_p, bin_b},
-    {"LOAD", load_p, load_b}
+    {"INC_SRC", src_p, src_b},
+    {"INC_BIN", bin_p, bin_b},
+    {"LOAD_REG", load_p, load_b}
 };
 
 /**********/

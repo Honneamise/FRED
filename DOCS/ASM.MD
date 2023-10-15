@@ -8,11 +8,11 @@
 
 - Labels can contains any sequence of letters, numbers and underscore symbols.
 
-- Comment must start with the semicolon ( **;** ) symbol.
+- Comment can start with the semicolon ( **;** ) symbol or with double dot (**..**)
 
 - Only one instruction or macro per line is permitted.
 
-- For debug pourposes the opcode **0x68** will print the cpu info to stdout.
+- For debug pourposes the opcode **0x68** will print the cpu status to stdout.
 
 # CODE SNIPPETS
 

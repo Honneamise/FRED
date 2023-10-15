@@ -3,6 +3,7 @@
 #include "stream.h"
 #include "isa.h"
 #include "macro.h"
+#include "parser.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +25,7 @@ void assembler_build(Context *ctx, Stream *in, Stream *out)
         if(token != NULL) 
         { 
             //if symbol skip it
-            if(stream_expect(in, SYMBOL_MARKER))
+            if(stream_expect(in, COLON))
             {
                 free(token);
 
@@ -54,8 +55,14 @@ void assembler_build(Context *ctx, Stream *in, Stream *out)
         
         stream_skip_blanks(in);
 
-        //comment present ?
-        if(stream_expect(in, COMMENT_START))
+        //comment present with ";"
+        if(stream_expect(in, SEMICOLON))
+        {
+            stream_skip_until(in, EOL);
+        }
+
+        //comment present with ".."
+        if(stream_expect(in, DOT) && stream_expect(in, DOT))
         {
             stream_skip_until(in, EOL);
         }

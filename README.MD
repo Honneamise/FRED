@@ -140,6 +140,8 @@ The full reference of the CDP1802 instruction set is documented in the [ISA](DOC
 
 Some simple macros are available in the [MACRO](DOCS/MACRO.MD) section.
 
+The library reference for standard routines is available in the [LIBRARY](DOCS/LIBRARY.MD) section.
+
 Basic informations and several code snippets are provided in the [ASM](DOCS/ASM.MD) section.
 
 ## DEVELOPMENT
@@ -151,6 +153,16 @@ The future improvements of the project will include the implementation of the fo
 
 ## HISTORY
 
+**15-10-2023**
+
+    - added option to start comments with (..)
+    - labels can now match instructions names (required by RCA library)
+    - renamed some macro to avoid conflicts on library names
+    - improved Data Flag (DF) assignments
+    - fixed edge case for short branches in the last two bytes of a page
+    - added library section
+    - updated documentation
+    
 **07-10-2023**
 
     - enhanced BYTE macro to support labels nibbles

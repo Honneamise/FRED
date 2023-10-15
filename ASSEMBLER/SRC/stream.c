@@ -141,7 +141,7 @@ void stream_write_byte(Stream *stream, uint8_t byte)
 
 /**********/
 void stream_write_word(Stream *stream, uint16_t word)
-{
+{            
     stream_write_byte(stream, (uint8_t)(word>>8));
 
     stream_write_byte(stream, (uint8_t)(word & 0x00FF));

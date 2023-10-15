@@ -13,14 +13,10 @@ ORG 0x1000
 Select the high byte ( **.1** ) or the low byte ( **.0** ) of a 16 bit address value
 
 ```
-;store in R5 the address of LABEL
-
 LDI    LABEL.1     
 PHI    R5
 LDI    LABEL.0
 PLO    R5
-
-LABEL: 
 ```
 
 ## BYTE
@@ -65,32 +61,32 @@ Store a sequence of ascii characters
 STRING "HELLO WORLD"
 ```
 
-## INCLUDE_SRC
+## INC_SRC
 
 Include the contents of a file as source code
 
 ```
-INCLUDE_SRC "file.asm"
+INC_SRC "file.asm"
 ```
 
-## INCLUDE_BIN
+## INC_BIN
 
 Include the contents of a file as binary data
 
 ```
-INCLUDE_SRC "file.bin"
+INC_BIN "file.bin"
 ```
 
-## LOAD
+## LOAD_REG
 
-Load a register with a value taken from a register, a number or a label.
+Load a register with a value taken from a number, a register or a label.
 
 ```
-LOAD R1,0x69    ; will store 0x0069 in R1
+LOAD_REG R1,0x69    ; will store 0x0069 in R1
 
-LOAD R1,0x1234  ; will store 0x1234 in R1
+LOAD_REG R1,0x1234  ; will store 0x1234 in R1
 
-LOAD R1,R2      ; will store the value of R2 in R1
+LOAD_REG R1,R2      ; will store the value of R2 in R1
 
-LOAD R1,LABEL   ; will store the address value of LABEL in R1
+LOAD_REG R1,LABEL   ; will store the address value of LABEL in R1
 ```

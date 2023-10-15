@@ -35,6 +35,11 @@ void context_add_symbol(Context *ctx, char *name)
 
     s->name = name;
     
+    if(ctx->byte_counter>0xFFFF)
+    {
+        error("[%s][LABEL REFERENCE INVALID][%s][%X]", __func__, s->name, ctx->byte_counter);            
+    }
+
     s->val = (uint16_t)ctx->byte_counter;
    
     s->next = ctx->table;

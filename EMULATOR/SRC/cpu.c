@@ -24,6 +24,26 @@ typedef struct CPU
 
 } CPU;
 
+static char *REGISTERS_ALIAS[] = 
+{
+    "",
+    "",
+    "SP",
+    "PC",
+    "CALL",
+    "RETN",
+    "LINK",
+    "",
+    "",
+    "",
+    "AR",
+    "NR",
+    "CR",
+    "MA",
+    "MQ",
+    "AC"
+};
+
 static CPU *cpu = NULL;
 
 /*********/
@@ -41,7 +61,7 @@ static void cpu_dump(void)
 
     for(int i=0;i<16;i++)
     {
-        printf("R%d: 0x%04X\n", i, cpu->REGS[i]);
+        printf("R%d(%s): 0x%04X\n", i, REGISTERS_ALIAS[i], cpu->REGS[i]);
     }
 }
 
@@ -269,10 +289,10 @@ static uint8_t cpu_BNZ(void)
 }
 
 /*********/
-//if DF!=0 then R(P).0 <- M(R(P)) else R(P) <- R(P) +1
+//if DF==0 then R(P).0 <- M(R(P)) else R(P) <- R(P) +1
 static uint8_t cpu_BNF(void)
 {	 
-	if (cpu->DF != 0)
+	if (cpu->DF == 0)
 	{
 		uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
@@ -481,10 +501,11 @@ static uint8_t cpu_ADC(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
-	if ((byte + cpu->D + cpu->DF) > 0xFF) { cpu->DF = 1; }
-	else { cpu->DF = 0; }
+    uint8_t df = byte + cpu->D + cpu->DF > 0xFF;
 
 	cpu->D = (uint8_t)( byte + cpu->D + cpu->DF );
+
+    cpu->DF = df;
 
     return 2;
 }
@@ -497,8 +518,7 @@ static uint8_t cpu_SDB(void)
     
     uint8_t compDF = !cpu->DF;
 
-	if (byte - cpu->D - compDF < 0) { cpu->DF = 1; }
-	else { cpu->DF = 0; }
+	cpu->DF = byte >= (cpu->D + compDF);
 
 	cpu->D = (uint8_t)(byte - cpu->D - compDF);
 
@@ -527,9 +547,8 @@ static uint8_t cpu_SMB(void)
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
 	uint8_t compDF = !cpu->DF;
-	
-	if (cpu->D - byte - compDF < 0 ) { cpu->DF = 1; }
-	else { cpu->DF = 0; }
+
+    cpu->DF = cpu->D >= (byte + compDF);
 	
 	cpu->D = (uint8_t)(cpu->D - byte - compDF);
 
@@ -584,10 +603,11 @@ static uint8_t cpu_ADCI(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
-	if ((byte + cpu->D + cpu->DF) > 0xFF) { cpu->DF = 1; }
-	else { cpu->DF = 0; }
+    uint8_t df = (byte + cpu->D + cpu->DF) > 0xFF;
 
 	cpu->D = (uint8_t)(byte + cpu->D + cpu->DF);
+
+    cpu->DF = df;
 
 	cpu->REGS[cpu->P]++;
 
@@ -602,8 +622,7 @@ static uint8_t cpu_SDBI(void)
 
 	uint8_t compDF = !cpu->DF;
 
-	if (byte - cpu->D - compDF < 0) { cpu->DF = 1; }
-	else { cpu->DF = 0; }
+    cpu->DF = byte >= (cpu->D + compDF);
 
 	cpu->D = (uint8_t)(byte - cpu->D - compDF);
 
@@ -616,7 +635,7 @@ static uint8_t cpu_SDBI(void)
 //shift D left one bit; LSB(D) <- DF ; DF <- MSB(D)
 static uint8_t cpu_SHLC(void)
 {
-	uint8_t msb = ((uint8_t)(cpu->D >> 7)) % 0x01;
+	uint8_t msb = ((uint8_t)(cpu->D >> 7)) & 0x01;
 
 	cpu->D = (uint8_t)(cpu->D << 1);
 
@@ -635,8 +654,7 @@ static uint8_t cpu_SMBI(void)
 
 	uint8_t compDF = !cpu->DF;
 
-	if (cpu->D - byte - compDF < 0) { cpu->DF = 1; }
-	else { cpu->DF = 0; }
+    cpu->DF = cpu->D >= (byte + compDF);
 
 	cpu->D = (uint8_t)(cpu->D - byte - compDF);
 
@@ -981,10 +999,11 @@ static uint8_t cpu_ADD(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
-	if ((byte + cpu->D) > 0xFF) { cpu->DF = 1; }
-	else { cpu->DF = 0; }
+    uint8_t df = (byte + cpu->D) > 0xFF;
 
-	cpu->D = (uint8_t)(byte+ cpu->D);
+    cpu->D = (uint8_t)(byte + cpu->D);
+
+    cpu->DF = df;
 
     return 2;
 }
@@ -995,8 +1014,7 @@ static uint8_t cpu_SD(void)
 {
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
-	if ( cpu->D > byte ) { cpu->DF = 1; }
-	else { cpu->DF = 0; }
+	cpu->DF = byte >= cpu->D;
 
 	cpu->D = (uint8_t)(byte - cpu->D);
 
@@ -1008,19 +1026,19 @@ static uint8_t cpu_SD(void)
 static uint8_t cpu_SHR(void)
 {	
 	cpu->DF = cpu->D & 0x01;
-	cpu->D = cpu->D >> 1;
+    
+    cpu->D = cpu->D >> 1;
 
     return 2;
 }
 
 /*********/
-//DF,D <- D-M(R(X))
+//DF,D <- D - M(R(X))
 static uint8_t cpu_SM(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->X]);
 
-	if (byte > cpu->D) { cpu->DF = 1; }
-	else { cpu->DF = 0; }
+	cpu->DF = cpu->D >= byte;
 
 	cpu->D = (uint8_t)(cpu->D - byte);
 
@@ -1085,10 +1103,11 @@ static uint8_t cpu_ADI(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
-	if ((cpu->D + byte) > 0xFF) { cpu->DF = 1; }
-	else { cpu->DF = 0; }
+    uint8_t df = (byte + cpu->D) > 0xFF;
 
 	cpu->D = (uint8_t)(byte + cpu->D);
+
+    cpu->DF = df;
 
 	cpu->REGS[cpu->P]++;
 
@@ -1101,8 +1120,7 @@ static uint8_t cpu_SDI(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
-	if ( cpu->D > byte ) { cpu->DF = 1; }
-	else { cpu->DF = 0; }
+	cpu->DF = byte >= cpu->D;
 
 	cpu->D = (uint8_t)(byte - cpu->D);
 
@@ -1128,8 +1146,7 @@ static uint8_t cpu_SMI(void)
 {	
 	uint8_t byte = memory_read(cpu->REGS[cpu->P]);
 
-	if ( byte > cpu->D ) { cpu->DF = 1; }
-	else { cpu->DF = 0; }
+    cpu->DF = cpu->D >= byte;
 
 	cpu->D = (uint8_t)(cpu->D - byte);
 

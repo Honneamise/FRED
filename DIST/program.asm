@@ -1,27 +1,29 @@
-ORG     0x1000      ; set the entry point
- 
-MAIN:                       ; R1 as string pointer
+ORG 0x1000                  ; entry point
+    
+    LOAD_REG    R2, 0xFFFF  ; setup stack pointer to 0xFFFF
+    LOAD_REG    R3, MAIN    ; set program counter to MAIN label
+    LOAD_REG    R4, CALLS   ; set register for CALL
+    LOAD_REG    R5, RET     ; set register for RETURN
+    SEP         R3          ; set new program counter to MAIN
 
-        LDI     LABEL.1     ; get high byte of LABEL
-        PHI     R1          ; store it in high byte of R1
-        LDI     LABEL.0     ; get low byte of LABEL
-        PLO     R1          ; store it in low byte of R1
+    INC_SRC "lib_std.asm"       ; include CALL/RET utilities
+    RESERVE 0xCA                ; library need page alignment
+    INC_SRC "lib_routines.asm"  ; include library functions
 
-PRINT:
-        LDA     R1          ; D <- M(R(N)); R(N) <- R(N)+1
+MAIN:
+    LOAD_REG    MQ, 0x0007  ; clear MQ
+    LOAD_REG    AC, 0xA121  ; load AC
+    LOAD_REG    MA, VAL
 
-        BZ      END         ; if zero, done
+    SEP         CALL        ; prepare call
+    WORD        DIVQ          ; call to routine address 
+    ;WORD        VAL
 
-        STR     R2          ; M(R(X)) <-- D
-        
-        INC     R2          ; skip attribute byte
+BYTE 0x68            ; dump the cpu status
 
-        INC     R2          ; next pos
+    IDL                     ; halt
 
-        BR     PRINT        ; repeat
+VAL:
+    WORD 0x0002
 
-END:    IDL                 ; halt execution
 
-LABEL: 
-        STRING "HELLO WORLD" 
-        BYTE 0x00

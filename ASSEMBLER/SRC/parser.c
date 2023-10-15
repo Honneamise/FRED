@@ -3,6 +3,7 @@
 #include "stream.h"
 #include "isa.h"
 #include "macro.h"
+#include "parser.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -11,10 +12,10 @@
 /**********/
 static void parse_symbol(Context *ctx, Stream *stream, char *token)
 {
-    if(isa_get_instruction(token)   //no instr
-    || isa_get_register(token) !=-1 //no register
-    || macro_get(token)             //no macro
-    || str_to_word(token, NULL))    //no number
+    if( //isa_get_instruction(token) ||  //no instr    
+        macro_get(token) ||            //no macro
+        str_to_word(token, NULL) ||    //no number
+        isa_get_register(token)!=-1 )  //no register
     { 
         error("[%s][LINE %d][INVALID SYMBOL NAME][%s]", __func__, stream->line, token);
     }
@@ -43,8 +44,8 @@ void assembler_parse(Context *ctx, Stream *stream)
         //token can be symbol, instruction or macro
         if(token != NULL) 
         { 
-            //symbol ?
-            if(stream_expect(stream, SYMBOL_MARKER))
+            //symbol definition ?
+            if(stream_expect(stream, COLON))
             {
                 parse_symbol(ctx, stream, token);
 
@@ -79,8 +80,14 @@ void assembler_parse(Context *ctx, Stream *stream)
         
         stream_skip_blanks(stream);
 
-        //comment present ?
-        if(stream_expect(stream, COMMENT_START))
+        //comment present with ";"
+        if(stream_expect(stream, SEMICOLON))
+        {
+            stream_skip_until(stream, EOL);
+        }
+
+        //comment present with ".."
+        if(stream_expect(stream, DOT) && stream_expect(stream, DOT))
         {
             stream_skip_until(stream, EOL);
         }

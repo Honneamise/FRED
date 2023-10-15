@@ -40,6 +40,9 @@ int main(int argc, char **argv)
     in->pos = 0;
     in->line = 1;
 
+    //reset the byte counter
+    ctx->byte_counter = 0;
+
     printf("BUILDING...");
     assembler_build(ctx, in, out);
     printf("OK\n");
