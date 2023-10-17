@@ -1,4 +1,4 @@
-# LIBRARY
+# 1802 LIBRARY
 
 The library is composed of two modules :
 
@@ -10,7 +10,7 @@ Both are from the original documentation of 1976.
 
 To correctly setup the registers as required see the example provided later.
 
-For utilization and implementation details see [1802 EXTRA](1802_EXTRA.PDF).
+For utilization and implementation details see [1802 LIBRARY](1802_LIBRARY.PDF).
 
 ## LIB_STD
 
@@ -62,7 +62,7 @@ Including the file __"lib_routines.asm"__ allow the access to the following func
     - TEST
     - SWAPAQ
 
-## USAGE EXAMPLE
+## LIBRARY TEST PROGRAM
 
 ```
 ;WORD LABEL is the equivalent of ,A(LABEL) in the original notation 
@@ -76,24 +76,24 @@ ORG 0x1000                  ; entry point
     SEP         R3          ; set new program counter to MAIN
 
     INC_SRC "lib_std.asm"       ; include CALL/RET utilities
-    RESERVE 0xDA                ; library need page alignment
+    RESERVE 0xCA                ; library need page alignment
     INC_SRC "lib_routines.asm"  ; include library functions
 
 MAIN:
-
-    LOAD_REG    AC, 0x7FFF  ; load AC(RF)
-    LOAD_REG    MA, VAL     ; load MA(RE)
+    LOAD_REG    MQ, 0x0007  ; clear MQ
+    LOAD_REG    AC, 0xA121  ; load AC
+    LOAD_REG    MA, VAL
 
     SEP         CALL        ; prepare call
-    WORD        MPY         ; call to routine address 
-    WORD        VAL
+    WORD        DIVQ          ; call to routine address 
+    ;WORD        VAL
 
-BYTE        0x68            ; dump the cpu status
+BYTE 0x68            ; dump the cpu status
 
     IDL                     ; halt
 
 VAL:
-    WORD 0x7FFF             ; operand
+    WORD 0x0002
 ```
 
 ## NOTES ABOUT TRANSCRIPTION

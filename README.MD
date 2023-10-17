@@ -140,7 +140,7 @@ The full reference of the CDP1802 instruction set is documented in the [ISA](DOC
 
 Some simple macros are available in the [MACRO](DOCS/MACRO.MD) section.
 
-The library reference for standard routines is available in the [LIBRARY](DOCS/LIBRARY.MD) section.
+The library reference for standard routines is available in the [LIBRARY](LIBRARY/LIBRARY.MD) section.
 
 Basic informations and several code snippets are provided in the [ASM](DOCS/ASM.MD) section.
 

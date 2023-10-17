@@ -6,9 +6,9 @@ ORG 0x1000                  ; entry point
     LOAD_REG    R5, RET     ; set register for RETURN
     SEP         R3          ; set new program counter to MAIN
 
-    INC_SRC "lib_std.asm"       ; include CALL/RET utilities
+    INC_SRC "../LIBRARY/lib_std.asm"       ; include CALL/RET utilities
     RESERVE 0xCA                ; library need page alignment
-    INC_SRC "lib_routines.asm"  ; include library functions
+    INC_SRC "../LIBRARY/lib_routines.asm"  ; include library functions
 
 MAIN:
     LOAD_REG    MQ, 0x0007  ; clear MQ
