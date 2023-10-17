@@ -146,12 +146,16 @@ Basic informations and several code snippets are provided in the [ASM](DOCS/ASM.
 
 ## DEVELOPMENT
 
-The future improvements of the project will include the implementation of the following functionalities :
-- implementing the original library for arithmethic subroutines
-- dma
-- block devices
+The project is nearly completed, eventually i will add dma functionalities for block devices.
+Stay tuned !
 
 ## HISTORY
+
+**17-10-2023**
+
+    - completed library transcription
+    - created standalone folder for library
+    - updated documentation    
 
 **15-10-2023**
 
