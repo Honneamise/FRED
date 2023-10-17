@@ -61,8 +61,6 @@ Including the file __"lib_routines.asm"__ allow the access to the following func
     - COMP
     - TEST
     - SWAPAQ
-- OTHERS
-    - DZS
 
 ## USAGE EXAMPLE
 
@@ -103,10 +101,10 @@ VAL:
 The transcription of the original library tries to be as faithful as possible, but there are some basic differences:
 
 - numbers are always expressed with their hexadecimal value (0x)
-- the arithmetic expressions have been replaced with new labels
+- the arithmetic expressions have been replaced with new labels (_XX)
 - the value 0x38 has been replaced with the corresponding SKP instruction
 
-Details :
+__Details :__
 
 - Line 194 : BR  _01(205)
 - Line 222 : BNZ _02(226)
@@ -125,4 +123,13 @@ Details :
 - Line 731 : BNZ _12(725)
 - Line 733 : BZ  _13(727)
 - Line 734 : BR  _12(725)
-- Line 749 : BNF _14()
+- Line 749 : BNF _14(755)
+- Line 806 : BDF _15(834)
+- Line 815 : BDF _15(834)
+- Line 824 : BDF _16(835)
+- Line 845 : BDF _17(844)
+- Line 891 : BZ  _18(896)
+- Line 894 : BR  _19(888)
+- Line 908 : BNZ NEXT(910)
+- Line 914 : BNF _20(916)
+- Line 930 : BR  _18(896)

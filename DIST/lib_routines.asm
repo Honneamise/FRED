@@ -786,3 +786,146 @@ LOOP: INC AR    .. GRAB THE FIRST DIGIT
     SEX SP      .. FIX X PTR
     LDN AR      .. ALWAR HIGH BYTE (FOR ASCII)
     ANI 0x0F    .. 
+    STR SP      .. PUT IT BACK
+    GLO AC      .. ADD THAT DIGIT TO CCUM
+    ADD         ..
+    PLO AC      ..
+    GHI AC      ..
+    ADCI 0x00   .. REMEMBER CARRY OVER
+    PHI AC      ..
+    BDF OVFLW   .. EXECEEDS ACCUM LIMIT ?
+    DEC NR      .. DEC DIGIT COUNTER
+    GLO NR      .. SEE IF IT IS 0 ?
+    BZ  FINAL   .. YES, THEN DONE
+    GLO AC      .. OTHERWISE MULTIPLY THE ACC BY 10
+    SHL         .. 
+    STXD        ..
+    GHI AC      ..
+    SHLC        .. CARRY OVER
+    STXD        ..
+    BDF _15     .. EXCEEDED ACC LIMIT
+    LDI 0x02    ..
+MPY3: STR SP    .. LOOP COUNT
+    GLO AC      ..
+    SHL         .. NOW SHIFT AC OVER 4 TIMES MORE
+    PLO AC      ..
+    GHI AC      .. SAME FOR AC.1
+    SHLC        ..
+    PHI AC      ..
+    BDF _15     .. IF OVERFLOW, RESET STACK
+    LDN SP      .. CHECK LOOP COUNT
+    BZ  MPY10   .. AFTER MULTIPLY BY 8
+    SMI 0x01    .. OR ELSE DEC LOOP COUNT
+    BR  MPY3    .. BACK FOR MORE ADDITION
+MPY10: INC SP   .. RECOVER LOOP COUNT
+    GHI AC      .. ADD HIGH BYTE
+    ADD         .. ADD 8ACC TO 2ACC
+    PHI AC      ..
+    BDF _16     .. RESULT DF IF OVFLOW
+    INC SP      .. RESET STACK PNTR
+    GLO AC      .. SAME FOR AC.0
+    ADD         ..
+    PLO AC      ..
+    GHI AC      .. FOR CARRY OUT
+    ADCI 0x00   ..
+    PHI AC      ..
+    BNF LOOP    .. IF NOT OVFLW, GO BACK FOR MORE
+    LSKP        .. SKIP STACK RESET
+_15: INC SP     .. RESET STACK PTR
+_16: INC SP     ..
+OVFLW: SEP RETN .. DF=1
+FINAL: GHI AC   .. CHECK IF EXCEED MAX POS NUM LIMT
+    ADI 0x80    ..
+    BNZ CP      .. IF NOT POSSIBLE, SKIP
+    GLO AC      ..
+    BNZ CP      .. IF NOT GO TO COMP
+    GHI NR      .. SEE IF IT IS POSITIVE
+    ADI 0xFF    .. SET DF ACCORDINGLY
+_17: SEP RETN   ..
+CP: BDF _17     .. OVERFLOWED !
+    GHI NR      .. TEST FOR SIGN
+    BNZ EXIT    .. IF POS, DONE
+    GLO AC      .. IF NEG, SUBTRACT FROM 0
+    SDI 0x00    ..
+    PLO AC      ..
+    GHI AC      ..
+                ..
+    SDBI 0x00   ..
+    PHI AC      ..
+    ..
+    .. BINARY TO DECIMAL CONVERSION
+    .. **** DECIMAL NUMBER=AC
+    .. DECIMAL NUMBER = SIGN,NN,.....,N1,N0
+    .. SIGN=#0B +
+    .. SIGN=#0D -
+    .. N0=10**0 DIGIT
+    .. N1=10**1 DIGIT, ETC
+    .. ************ (TO CALL, WRITE) ************
+    .. **** CALL CBD; ,A(NUMBER); LENGTH
+EXIT: SEP RETN  ..
+CBD: LDA LINK   .. GET THE ADDRESS
+    PHI AR      .. AND STORE IN RA
+    LDA LINK    .. SAME FOR LOW BYTE
+    PLO AR      ..
+    LDA LINK    .. GET LENGTH
+    SMI 0x01    .. SUBTRACT FOR SIGN BYTE
+    PLO NR      .. STORE IN NR.0
+    PHI NR      .. AND NR.1
+    LDI 0x0F    .. NUM OF ITERATIONS
+    PLO MA      .. STORE IN MA.0
+    GHI AC      .. TEST FOR SIGN
+    SHL         ..
+    LDI 0x0B    .. IF DF=0, IT IS POS
+    BNF POS     ..
+    GLO AC      .. OTHERWISE CONVERT IT TO POS
+    SDI 0x00    ..
+    PLO AC      ..
+    GHI AC      ..
+    SDBI 0x00   ..
+    PHI AC      ..
+    LDI 0x0D    .. MINUS SIGN
+    LSKP        ..
+_19: LDI 0x00    ..
+POS: STR AR     .. UT IT IN SIGN BYTE
+    GLO NR      .. CHECK DIGIT COUNTER
+    BZ  _18     .. GO BACK FOR MORE ITERATION
+    INC AR      .. GO TO NEXT DIGIT
+    DEC NR      .. DEC DIGIT CNTR
+    BR  _19     .. GO BACK FOR MORE CLEAR
+    SEX SP      ..
+_18: GHI NR      .. RESET DIGIT CNTR
+    PLO NR      ..
+LOOP1: GLO AC   .. SHIFT BIT OF AC OUT
+    SHL         ..
+    PLO AC      ..
+    GHI AC      ..
+    SHLC        .. SAME FOR AC.1
+    PHI AC      ..
+    LDN AR      ..
+    ADCI 0x00   .. ADD TO LOWEST DIGIT
+    STR AR      ..
+    GLO MA      .. FOR MORE ITERATION ?
+    BNZ NEXT     .. CONTINUE IF MORE ITERATION
+END: SEP RETN   ..
+NEXT: LDN AR    .. LOAD DIGIT
+    SHLC        .. SHIFT LEFT OVER ONCE
+    STR AR      .. PUT IT BACK
+    SMI 0x0A    .. NEED TO INC NEXT DIGIT ?
+    BNF _20     .. SKIP IF NOT>10
+    STR AR      .. ELSE UPDATE DIGIT
+_20: DEC AR      .. GO TO NEXT DIGIT
+    DEC NR      .. DEC DIGIT COUNT
+    GLO NR      .. CHECK IF 0 ?
+    BNZ EXIT    .. IF NOT, DO THE SAME FOR NEXT DIGIT
+    BDF END     .. OVERFLOWED
+    DEC MA      .. DEC NO OF SHIFTS
+    GHI NR      .. RESET ADDRESS PTR
+    STR SP      .. PUT DIGIT ON STACK
+    GLO AR      ..
+    ADD         ..
+    PLO AR      ..
+    GHI AR      ..
+    ADCI 0x00   ..
+    PHI AR      ..
+    BR _18      ..
+                .. THE END

@@ -25,5 +25,3 @@ BYTE 0x68            ; dump the cpu status
 
 VAL:
     WORD 0x0002
-
-
