@@ -1,3 +1,5 @@
+![FRED](fred.jpg)
+
 # (SUPER) FRED
 
 SUPER FRED is a system based on the RCA CDP 1802 processor designed by Joseph Weisbecker.
