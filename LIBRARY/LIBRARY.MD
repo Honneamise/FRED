@@ -66,7 +66,7 @@ Including the file [lib_routines.asm](lib_routines.asm) allow the access to the 
 
 Simple test program for library ( assembly source file : [lib_test.asm](lib_test.asm) )
 
-Usage from __DIST__ folder :
+Usage from the __"DIST"__ folder :
 
 - to assemble : __./FRED_ASM.EXE ../LIBRARY/lib_test.asm ../LIBRARY/lib_test.bin__
 
