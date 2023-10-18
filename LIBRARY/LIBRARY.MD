@@ -85,11 +85,12 @@ Usage from the __"DIST"__ folder :
 
 ORG 0x1000                      ; entry point
     
-    LOAD_REG    R2, 0xFFFF      ; setup stack pointer to 0xFFFF
-    LOAD_REG    R3, MAIN        ; set program counter to MAIN label
-    LOAD_REG    R4, CALLS       ; set register for CALL
-    LOAD_REG    R5, RET         ; set register for RETURN
-    SEP         R3              ; set the new program counter
+    LOAD_REG    CALL, CALLS     ; set register for CALL
+    LOAD_REG    RETN, RET       ; set register for RETURN
+    LOAD_REG    SP, 0xFFFF      ; setup stack pointer to 0xFFFF
+    SEX         SP              ; set SP as X
+    LOAD_REG    PC, MAIN        ; set program counter to MAIN label
+    SEP         PC              ; set PC as P
 
     INC_SRC "../LIBRARY/lib_std.asm"        ; include CALL/RET utilities
     RESERVE 0xCA                            ; library need page alignment(!!!)

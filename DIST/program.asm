@@ -20,7 +20,7 @@ IMAGE_LOOP:                 ; will stop when R9 is 0x07D0(2000)
     LDA         R7          ; load data and advance
     XRI         0xFF        ; bits in pbm images are inverted
     STR         R8          ; store
-    INC         R8          ;increase store pointer
+    INC         R8          ; increase store pointer
     
     GHI         R9          ; get high byte of counter
     XRI         0x07        ; xor with 0x07
