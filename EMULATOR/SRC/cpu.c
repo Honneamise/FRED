@@ -61,7 +61,7 @@ static void cpu_dump(void)
 
     for(int i=0;i<16;i++)
     {
-        printf("R%d(%s): 0x%04X\n", i, REGISTERS_ALIAS[i], cpu->REGS[i]);
+        printf("(R%d)%s: 0x%04X\n", i, REGISTERS_ALIAS[i], cpu->REGS[i]);
     }
 }
 

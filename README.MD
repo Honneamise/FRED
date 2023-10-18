@@ -151,6 +151,12 @@ Stay tuned !
 
 ## HISTORY
 
+**18-10-2023**
+
+    - improved cpu dump function
+    - added test program for library
+    - updated documentation
+
 **17-10-2023**
 
     - completed library transcription

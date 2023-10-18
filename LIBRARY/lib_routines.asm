@@ -916,7 +916,7 @@ NEXT:       LDN AR      .. LOAD DIGIT
 _20:        DEC AR      .. GO TO NEXT DIGIT
             DEC NR      .. DEC DIGIT COUNT
             GLO NR      .. CHECK IF 0 ?
-            BNZ EXIT    .. IF NOT, DO THE SAME FOR NEXT DIGIT
+            BNZ NEXT    .. IF NOT, DO THE SAME FOR NEXT DIGIT
             BDF END     .. OVERFLOWED
             DEC MA      .. DEC NO OF SHIFTS
             GHI NR      .. RESET ADDRESS PTR
