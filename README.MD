@@ -65,10 +65,18 @@ FRED
 |   ├── MACRO.MD
 |   └── SPECS.MD
 |
+├── LIBRARY
+|   ├── 1802_LIBRARY.PDF
+|   ├── lib_routines.asm
+|   ├── lib_std.asm
+|   ├── lib_test.asm
+|   └── LIBRARY.MD
+|
 ├── DIST
 │   ├── charset.rom
-|   ├── program.bin
 |   ├── program.asm
+|   ├── program.bin
+|   ├── image.bin
 |   ├── FRED_ASM.EXE
 |   ├── FRED_EMU.EXE
 |   ├── glfw3.dll
