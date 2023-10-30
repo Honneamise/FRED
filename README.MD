@@ -58,7 +58,6 @@ FRED
 |   └── CMakeLists.txt
 |
 ├── DOCS
-|   ├── 1802_EXTRA.PDF
 |   ├── 1802_MANUAL.PDF
 |   ├── ASM.MD
 |   ├── ISA.MD
